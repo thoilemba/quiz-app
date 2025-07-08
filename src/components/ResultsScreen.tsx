@@ -1,5 +1,3 @@
-import React from 'react';
-import { Trophy, Award } from 'lucide-react';
 import { quizData } from '../mock-data';
 // interface ResultsScreenProps {
 //   teams: Team[];
@@ -13,8 +11,8 @@ const ResultsScreen = () => {
   const sortedTeams = [...quizData.teams].sort((a, b) => b.score - a.score);
   
   // Get the winner (or winners in case of a tie)
-  const maxScore = sortedTeams[0]?.score;
-  const winners = sortedTeams.filter(team => team.score === maxScore);
+  // const maxScore = sortedTeams[0]?.score;
+  // const winners = sortedTeams.filter(team => team.score === maxScore);
 
   return (
     // <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white">

@@ -3,6 +3,25 @@ import { quizData, roundsData } from "../mock-data";
 import { Pause, Play, SkipForward } from "lucide-react";
 import { getRoundIcon } from "./RoundIcon";
 import { useNavigate } from "react-router-dom";
+import type { Question } from "../types";
+
+// Type for rounds data
+interface Round {
+  id: number;
+  name: string;
+  type: 'normal' | 'audio_visual' | 'rapid_fire';
+  timeLimit: number;
+  points: {
+    correct: number;
+    wrong: number;
+    bonus: number;
+    pass: number;
+  };
+  questions: Question[];
+}
+
+// Type assertion for roundsData
+const typedRoundsData = roundsData as unknown as Round[];
 
 function Quiz() {
 
@@ -17,7 +36,7 @@ function Quiz() {
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   const [quiz, setQuizData] = useState(quizData)
-  const rounds = roundsData;
+  const rounds = typedRoundsData;
   const currentRoundData = rounds[currentRound];
   const currentQuestionData = currentRoundData.questions[currentQuestion];
 
@@ -34,7 +53,7 @@ function Quiz() {
 
     // Timer effect
     useEffect(() => {
-      let interval;
+      let interval: number | undefined;
       if (isTimerRunning && timeLeft > 0) {
         interval = setInterval(() => {
           setTimeLeft(prev => prev - 1);
@@ -53,7 +72,7 @@ function Quiz() {
       setAnswerSubmitted(true);
     };
 
-    const formatTime = (seconds) => {
+    const formatTime = (seconds: number) => {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
       return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -100,7 +119,7 @@ function Quiz() {
     setAnswerSubmitted(false);
   };
 
-  const handleAnswerSelect = (answerIndex) => {
+  const handleAnswerSelect = (answerIndex: any) => {
     setSelectedAnswer(answerIndex);
     setAnswerSubmitted(true);
   };
@@ -110,9 +129,9 @@ function Quiz() {
     setIsTimerRunning(false);
   };
 
-  const awardPointsToTeam = (teamId, isCorrect) => {
+  const awardPointsToTeam = (teamId: any, isCorrect: any) => {
     const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
-    const points = calculatePoints(null, isCorrect, timeTaken);
+    const points = calculatePoints(isCorrect, timeTaken);
     updateTeamScore(teamId, points);
   };
 
@@ -128,7 +147,7 @@ function Quiz() {
     }));
   };
 
-  const calculatePoints = (teamAnswer, isCorrect, timeTaken) => {
+  const calculatePoints = ( isCorrect: any, timeTaken: any) => {
     const currentRoundData = rounds[currentRound];
     const points = currentRoundData.points;
     
@@ -227,7 +246,7 @@ function Quiz() {
                   disabled={showAnswer}
                 />
                 <button
-                  onClick={handleRapidFireSubmit}
+                  // onClick={handleRapidFireSubmit}
                   disabled={showAnswer || !rapidFireAnswer.trim()}
                   className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 px-4 py-3 rounded-lg font-bold"
                 >
@@ -236,7 +255,7 @@ function Quiz() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-                {currentQuestionData.options.map((option, idx) => (
+                {currentQuestionData.options?.map((option, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleAnswerSelect(idx)}
@@ -279,8 +298,10 @@ function Quiz() {
                   <h3 className="text-lg font-bold mb-4 text-green-400">Correct Answer:</h3>
                   <p className="text-xl mb-4">
                     {currentRoundData.type === 'rapid_fire' 
-                      ? currentQuestionData.correct 
-                      : `${String.fromCharCode(65 + currentQuestionData.correct)}. ${currentQuestionData.options[currentQuestionData.correct]}`
+                      ? String(currentQuestionData.correct)
+                      : currentQuestionData.options && typeof currentQuestionData.correct === 'number'
+                        ? `${String.fromCharCode(65 + currentQuestionData.correct)}. ${currentQuestionData.options[currentQuestionData.correct]}`
+                        : 'No answer available'
                     }
                   </p>
                   
