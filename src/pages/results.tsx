@@ -4,7 +4,7 @@ import { quizData } from '../mock-data';
 //   onRestart: () => void;
 // }
 
-const ResultsScreen = () => {
+const Results = () => {
 
 
   // Sort teams by score in descending order
@@ -136,4 +136,4 @@ const ResultsScreen = () => {
   );
 };
 
-export default ResultsScreen;
+export default Results;

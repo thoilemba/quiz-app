@@ -1,11 +1,11 @@
 import { Play } from 'lucide-react';
 import { quizData, roundsData } from '../mock-data';
 import { useNavigate } from 'react-router-dom';
-import { getRoundIcon } from './RoundIcon';
+import { getRoundIcon } from '../components/RoundIcon';
 
 
 
-const SetupQuiz = () => {
+const Details = () => {
 
   // const [quiz, setQuizData] = useState<QuizConfig>(quizData);
   // const [rounds, setRounds] = useState(roundsData);
@@ -106,4 +106,4 @@ const SetupQuiz = () => {
   );
 };
 
-export default SetupQuiz;
+export default Details;
