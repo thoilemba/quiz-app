@@ -53,7 +53,7 @@ function Quiz() {
 
     // Timer effect
     useEffect(() => {
-      let interval: number | undefined;
+      let interval: NodeJS.Timeout | undefined;
       if (isTimerRunning && timeLeft > 0) {
         interval = setInterval(() => {
           setTimeLeft(prev => prev - 1);

@@ -180,8 +180,8 @@ export default function CreateQuestions() {
                                                 <Image
                                                     src={URL.createObjectURL(question.media.url)}
                                                     alt="Selected Image"
-                                                    width={200}
-                                                    height={200}
+                                                    w={200}
+                                                    // h={200}
                                                     style={{ objectFit: 'contain' }}
                                                 />
                                             )}
