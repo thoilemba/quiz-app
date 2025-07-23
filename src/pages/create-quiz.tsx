@@ -18,6 +18,7 @@ export default function CreateQuiz() {
     const [numberOfTeams, setNumberOfTeams] = useState(2);
     const [numberOfRounds, setNumberOfRounds] = useState(3);
     const [numberOfMembers, setNumberOfMembers] = useState(4);
+    const [quizMaster, setQuizMaster] = useState('');
 
     const teamOptions = [
         { value: '2', label: '2 (Two)' },
@@ -31,19 +32,7 @@ export default function CreateQuiz() {
         { value: '10', label: '10 (Ten)' }
     ];
 
-    const memberOptions = [
-        { value: '2', label: '2 (Two)' },
-        { value: '3', label: '3 (Three)' },
-        { value: '4', label: '4 (Four)' },
-        { value: '5', label: '5 (Five)' },
-        { value: '6', label: '6 (Six)' },
-        { value: '7', label: '7 (Seven)' },
-        { value: '8', label: '8 (Eight)' },
-        { value: '9', label: '9 (Nine)' },
-        { value: '10', label: '10 (Ten)' }
-    ];
-
-    const roundOptions = [
+    const numberOptions = [
         { value: '1', label: '1 (One)' },
         { value: '2', label: '2 (Two)' },
         { value: '3', label: '3 (Three)' },
@@ -62,7 +51,8 @@ export default function CreateQuiz() {
             quizName,
             numberOfTeams,
             numberOfMembers,
-            numberOfRounds
+            numberOfRounds,
+            quizMaster
         });
         // Add your save logic here
         navigate('/create-teams', {
@@ -70,7 +60,8 @@ export default function CreateQuiz() {
                 quizName,
                 numberOfTeams,
                 numberOfMembers,
-                numberOfRounds
+                numberOfRounds,
+                quizMaster
             }
         });
     };
@@ -96,8 +87,8 @@ export default function CreateQuiz() {
                 <form onSubmit={handleSaveAndContinue}>
                     <Stack>
                         <TextInput
-                            label="Quiz Event Name"
-                            placeholder="Quiz Event Name"
+                            label="Quiz Name"
+                            placeholder="Quiz Name"
                             required
                             value={quizName}
                             onChange={(event) => setQuizName(event.currentTarget.value)}
@@ -118,7 +109,7 @@ export default function CreateQuiz() {
                             placeholder="Select number of members per team"
                             value={numberOfMembers.toString()}
                             onChange={(value) => setNumberOfMembers(Number(value))}
-                            data={memberOptions}
+                            data={numberOptions}
                             size="md"
                         />
 
@@ -127,7 +118,16 @@ export default function CreateQuiz() {
                             placeholder="Select number of rounds"
                             value={numberOfRounds.toString()}
                             onChange={(value) => setNumberOfRounds(Number(value))}
-                            data={roundOptions}
+                            data={numberOptions}
+                            size="md"
+                        />
+
+                        <TextInput
+                            label="Quiz Master"
+                            placeholder="Quiz Master"
+                            required
+                            value={quizMaster}
+                            onChange={(event) => setQuizMaster(event.currentTarget.value)}
                             size="md"
                         />
 

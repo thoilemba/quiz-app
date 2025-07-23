@@ -16,7 +16,7 @@ const TeamsDetailForm = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, quizMaster } = location.state || {};
 
     const [teams, setTeams] = useState(
         Array.from({ length: numberOfTeams }, (_, i) => ({
@@ -68,7 +68,8 @@ const TeamsDetailForm = () => {
                 numberOfTeams,
                 numberOfMembers,
                 numberOfRounds,
-                teams
+                teams,
+                quizMaster
             }
         });
     };

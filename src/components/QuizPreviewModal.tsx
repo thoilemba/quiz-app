@@ -17,7 +17,7 @@ import {
     Grid,
     List
 } from '@mantine/core';
-import { Eye, Check, Play, Save, Users, User } from 'lucide-react';
+import { Eye, Check, Play, Save, Users, User, Image } from 'lucide-react';
 import { getQuestionTypeIcon } from './QuestionTypeIcon';
 import { getQuestionTypeColor } from './QuestionTypeColor';
 import QuizInfo from './QuizInfo';
@@ -54,7 +54,15 @@ import QuizInfo from './QuizInfo';
 //   questions: Question[];
 // }
 
-const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMembers, numberOfRounds }: { rounds: any, teams: any, quizName: string, numberOfTeams: number, numberOfMembers: number, numberOfRounds: number }) => {
+declare global {
+    interface Window {
+        electronAPI: {
+            saveQuizJSON: (data: any) => Promise<{ success: boolean; error?: string; message?: string }>;
+        };
+    }
+}
+
+const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: any }) => {
     const [opened, setOpened] = useState(false);
 
     // Sample data - replace with your actual rounds data
@@ -143,14 +151,40 @@ const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMemb
     //     }
     // ];
 
-    // console.log('Teams Data:', teams);
+    // console.log('Quiz Data:', quizDetails);
+    // console.log('Rounds Data:', rounds);
 
-    const saveAllQuestions = () => {
-        console.log('All Questions Data:', rounds);
-        // Here you can send the data to your backend or local storage
-        setOpened(false);
-        // You can use Mantine notifications here
-        alert('Quiz saved successfully!');
+    // const saveAllQuestions = () => {
+    //     console.log('All Questions Data:', rounds);
+    //     // Here you can send the data to your backend or local storage
+    //     setOpened(false);
+    //     // You can use Mantine notifications here
+    //     alert('Quiz saved successfully!');
+    // };
+
+    const saveAllQuestions = async () => {
+        const quizData = {
+            quizName: quizDetails.quizName,
+            numberOfTeams: quizDetails.numberOfTeams,
+            membersPerTeam: quizDetails.numberOfMembers,
+            numberOfRounds: quizDetails.numberOfRounds,
+            quizMaster: quizDetails.quizMaster,
+            roundsData: rounds, // assuming `rounds` is your current state
+        };
+
+        console.log("quizData", quizData);
+
+        const result = await window.electronAPI.saveQuizJSON(quizData);
+
+        console.log("result", result);
+
+        if (result.success) {
+            setOpened(false);
+            alert('Quiz data saved successfully!');
+        } else {
+            setOpened(false);
+            alert('Failed to save quiz data: ' + (result.error || result.message || 'Unknown error'));
+        }
     };
 
 
@@ -189,11 +223,11 @@ const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMemb
                 }}
             >
                 <QuizInfo
-                    quizName={quizName}
-                    numberOfTeams={numberOfTeams}
-                    numberOfMembers={numberOfMembers}
-                    numberOfRounds={numberOfRounds}
-                    quizMaster="Dr. Moirangthem Surbala Devi"
+                    quizName={quizDetails.quizName}
+                    numberOfTeams={quizDetails.numberOfTeams}
+                    numberOfMembers={quizDetails.numberOfMembers}
+                    numberOfRounds={quizDetails.numberOfRounds}
+                    quizMaster={quizDetails.quizMaster}
                 />
                 {/* <Stack justify="center" gap="xs">
                     <Title order={3} ta="center" c="blue">Quiz Master</Title>
@@ -202,7 +236,7 @@ const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMemb
                 <Stack gap="lg" p="md">
                     <Title order={3} ta="center" c="blue">Teams</Title>
                     <Grid gutter="xl">
-                        {teams.map((team: any) => (
+                        {quizDetails.teams.map((team: any) => (
                             <Grid.Col key={team.id} span={6}>
                                 <Card
                                     shadow="sm"
@@ -272,7 +306,7 @@ const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMemb
                                                 {/* Media Display */}
                                                 {('media' in question) && question.media && (
                                                     <Alert
-                                                        icon={<Play size={16} />}
+                                                        icon={question.media.type === 'image' ? <Image size={16} /> : <Play size={16} />}
                                                         title="Media Content"
                                                         color="blue"
                                                         variant="light"
@@ -283,10 +317,27 @@ const QuizPreviewModal = ({ rounds, teams, quizName, numberOfTeams, numberOfMemb
                                                         </Text>
                                                         {/* Preview the media file */}
                                                         {/* <Text size="xs" c="dimmed" style={{ wordBreak: 'break-all' }}>
-                                                            {question.media.url || (
-                                                                <Text component="span" fs="italic">No URL provided</Text>
+                                                            {question.media.data ? (
+                                                                <img src={`data:${question.media.type};base64,${question.media.data}`} alt="Media Preview" />
+                                                            ) : (
+                                                                <Text component="span" fs="italic">No media data provided</Text>
                                                             )}
                                                         </Text> */}
+                                                        {/* Image Preview */}
+                                                        {question.media.type === 'image' && question.media.data && (
+                                                            <img
+                                                                src={question.media.data}
+                                                                alt="Preview"
+                                                                style={{ maxWidth: '200px', maxHeight: '200px' }}
+                                                            />
+                                                        )}
+                                                        {/* Audio Preview */}
+                                                        {question.media.type === 'audio' && question.media.data && (
+                                                            <audio controls style={{ marginTop: '1rem' }}>
+                                                                <source src={question.media.data} type="audio/mpeg" />
+                                                                Your browser does not support the audio element.
+                                                            </audio>
+                                                        )}
                                                     </Alert>
                                                 )}
 

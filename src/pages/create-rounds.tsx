@@ -446,7 +446,7 @@ import QuizInfo from "../components/QuizInfo";
 export default function CreateRounds() {
 
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, quizMaster } = location.state || {};
     const navigate = useNavigate();
 
     // Initialize rounds configuration
@@ -498,7 +498,8 @@ export default function CreateRounds() {
             numberOfTeams,
             numberOfMembers,
             teams,
-            roundsConfig
+            quizMaster,
+            roundsConfig,
         });
         navigate('/create-questions', {
             state: {
@@ -507,6 +508,7 @@ export default function CreateRounds() {
                 numberOfMembers,
                 numberOfRounds,
                 teams,
+                quizMaster,
                 roundsConfig
             }
         });
@@ -604,7 +606,7 @@ export default function CreateRounds() {
                 numberOfTeams={numberOfTeams}
                 numberOfMembers={numberOfMembers}
                 numberOfRounds={numberOfRounds}
-                quizMaster="Dr. Moirangthem Surbala Devi"
+                quizMaster={quizMaster}
             />
 
             <Stack gap="lg">

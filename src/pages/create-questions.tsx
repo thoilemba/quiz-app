@@ -5,16 +5,55 @@ import { useState } from "react";
 import QuizPreviewModal from "../components/QuizPreviewModal";
 import { getQuestionTypeColor } from "../components/QuestionTypeColor";
 import { getQuestionTypeIcon } from "../components/QuestionTypeIcon";
+import { readFileAsBase64 } from "../utils";
 
+// declare global {
+//     interface Window {
+//       electronAPI: {
+//         saveQuizJSON: (data: any) => Promise<{ success: boolean; error?: string; message?: string }>;
+//       };
+//     }
+//   }
 
 export default function CreateQuestions() {
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster } = location.state || {};
+
+    const quizDetails = {
+        quizName: quizName,
+        numberOfTeams: numberOfTeams,
+        membersPerTeam: numberOfMembers,
+        numberOfRounds: numberOfRounds,
+        quizMaster: quizMaster,
+        teams: teams,
+    };
 
     // function to save all questions
     const saveAllQuestions = () => {
-        console.log('All Questions Data:', rounds);
+        console.log('All Questions Data:', quizDetails, rounds);
     };
+
+
+    // const saveAllQuestions = async () => {
+    //     const quizData = {
+    //       quizName: "Testing",
+    //       numberOfTeams: 2,
+    //       membersPerTeam: 4,
+    //       numberOfRounds: 3,
+    //       quizMaster: "Dr. John",
+    //       roundsData: rounds, // assuming `rounds` is your current state
+    //     };
+
+    //     const result = await window.electronAPI.saveQuizJSON(quizData);
+
+    //     console.log("result", result);
+
+    //     if (result.success) {
+    //       alert('Quiz data saved successfully!');
+    //     } else {
+    //       alert('Failed to save quiz data: ' + (result.error || result.message || 'Unknown error'));
+    //     }
+    //   };
 
     const [rounds, setRounds] = useState(() =>
         roundsConfig.map((round: any) => ({
@@ -30,7 +69,11 @@ export default function CreateQuestions() {
                     case 'audio-visual':
                         return {
                             statement: '',
-                            media: { type: '', url: '' },
+                            media: {
+                                type: '',         // 'image' or 'audio'
+                                name: '',         // optional: store original file name
+                                data: ''          // ✅ base64 string
+                              },
                             options: ['', '', '', ''],
                             correctOption: 'Option A'
                         };
@@ -64,11 +107,33 @@ export default function CreateQuestions() {
         });
     };
 
-    // function to handle media change
-    const handleMediaChange = (roundIndex: number, questionIndex: number, field: string, value: File | string | null) => {
+    // function to handle media type change
+    const handleMediaTypeChange = (roundIndex: number, questionIndex: number, field: string, value: string) => {
         setRounds((prevRounds: any) => {
             const newRounds = [...prevRounds];
             newRounds[roundIndex].questions[questionIndex].media[field] = value;
+            return newRounds;
+        });
+        };
+
+    // function to handle media change
+    const handleMediaChange = async (roundIndex: number, questionIndex: number, field: string, value: File | string | null) => {
+
+        // console.log('Received value:', value);
+        // console.log('Type:', typeof value);
+        // console.log('Instance of File:', value instanceof File);
+        // console.log('Instance of Blob:', value instanceof Blob);
+
+        if (!value || typeof value !== 'object' || !(value instanceof Blob)) {
+            console.warn('Invalid file passed to handleMediaChange:', value);
+            return;
+        }
+
+        const file = value as File;
+        const base64 = await readFileAsBase64(file); // convert to base64
+        setRounds((prevRounds: any) => {
+            const newRounds = [...prevRounds];
+            newRounds[roundIndex].questions[questionIndex].media[field] = base64;
             return newRounds;
         });
     };
@@ -159,7 +224,7 @@ export default function CreateQuestions() {
                                                 placeholder="Select media type"
                                                 value={question.media.type}
                                                 onChange={(value) =>
-                                                    handleMediaChange(roundIndex, questionIndex, 'type', value as string)
+                                                    handleMediaTypeChange(roundIndex, questionIndex, 'type', value as string)
                                                 }
                                                 data={[
                                                     { value: 'image', label: 'Image' },
@@ -170,15 +235,16 @@ export default function CreateQuestions() {
                                                 label="Select Media File"
                                                 placeholder="Click to upload media file"
                                                 accept={question.media.type === 'image' ? 'image/*' : 'audio/*'}
-                                                value={question.media.url}
+                                                value={question.media.data}
                                                 onChange={(file) =>
-                                                    handleMediaChange(roundIndex, questionIndex, 'url', file)
+                                                    handleMediaChange(roundIndex, questionIndex, 'data', file)
                                                 }
                                                 disabled={question.media.type === ''}
                                             />
-                                            {question.media.type === 'image' && question.media.url && (
+                                            {question.media.type === 'image' && question.media.data && (
                                                 <Image
-                                                    src={URL.createObjectURL(question.media.url)}
+                                                    // src={URL.createObjectURL(question.media.url)}
+                                                    src={question.media.data}
                                                     alt="Selected Image"
                                                     w={200}
                                                     // h={200}
@@ -186,9 +252,10 @@ export default function CreateQuestions() {
                                                 />
                                             )}
 
-                                            {question.media.type === 'audio' && question.media.url && (
+                                            {question.media.type === 'audio' && question.media.data && (
                                                 <audio controls>
-                                                    <source src={URL.createObjectURL(question.media.url)} type="audio/mp3" />
+                                                    {/* <source src={URL.createObjectURL(question.media.url)} type="audio/mp3" /> */}
+                                                    <source src={question.media.data} type="audio/mp3" />
                                                     Your browser does not support the audio element.
                                                 </audio>
                                             )}
@@ -260,7 +327,7 @@ export default function CreateQuestions() {
                 Log Questions (for testing purpose)
             </Button>
             <Space h="sm" />
-            {rounds && <QuizPreviewModal teams={teams} rounds={rounds} quizName={quizName} numberOfTeams={numberOfTeams} numberOfMembers={numberOfMembers} numberOfRounds={numberOfRounds} />}
+            {rounds && <QuizPreviewModal quizDetails={quizDetails} rounds={rounds} />}
         </Container>
     );
 }
