@@ -175,6 +175,7 @@ function Quiz() {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white">
+        <div className="text-center text-5xl font-bold pt-4">This is a demo quiz</div>
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">

@@ -54,15 +54,9 @@ import QuizInfo from './QuizInfo';
 //   questions: Question[];
 // }
 
-declare global {
-    interface Window {
-        electronAPI: {
-            saveQuizJSON: (data: any) => Promise<{ success: boolean; error?: string; message?: string }>;
-        };
-    }
-}
 
-const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: any }) => {
+
+const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
     const [opened, setOpened] = useState(false);
 
     // Sample data - replace with your actual rounds data
@@ -163,14 +157,15 @@ const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: a
     // };
 
     const saveAllQuestions = async () => {
-        const quizData = {
-            quizName: quizDetails.quizName,
-            numberOfTeams: quizDetails.numberOfTeams,
-            membersPerTeam: quizDetails.numberOfMembers,
-            numberOfRounds: quizDetails.numberOfRounds,
-            quizMaster: quizDetails.quizMaster,
-            roundsData: rounds, // assuming `rounds` is your current state
-        };
+        // const quizData = {
+        //     quizName: quizDetails.quizName,
+        //     numberOfTeams: quizDetails.numberOfTeams,
+        //     membersPerTeam: quizDetails.numberOfMembers,
+        //     numberOfRounds: quizDetails.numberOfRounds,
+        //     quizMaster: quizDetails.quizMaster,
+        //     teams: quizDetails.teams,
+        //     roundsData: rounds, // assuming `rounds` is your current state
+        // };
 
         console.log("quizData", quizData);
 
@@ -199,6 +194,7 @@ const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: a
                 size="md"
                 variant="filled"
                 fullWidth
+                color="green"
             >
                 Preview & Save Quiz
             </Button>
@@ -223,11 +219,11 @@ const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: a
                 }}
             >
                 <QuizInfo
-                    quizName={quizDetails.quizName}
-                    numberOfTeams={quizDetails.numberOfTeams}
-                    numberOfMembers={quizDetails.numberOfMembers}
-                    numberOfRounds={quizDetails.numberOfRounds}
-                    quizMaster={quizDetails.quizMaster}
+                    quizName={quizData.quizName}
+                    numberOfTeams={quizData.numberOfTeams}
+                    numberOfMembers={quizData.numberOfMembers}
+                    numberOfRounds={quizData.numberOfRounds}
+                    quizMaster={quizData.quizMaster}
                 />
                 {/* <Stack justify="center" gap="xs">
                     <Title order={3} ta="center" c="blue">Quiz Master</Title>
@@ -236,7 +232,7 @@ const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: a
                 <Stack gap="lg" p="md">
                     <Title order={3} ta="center" c="blue">Teams</Title>
                     <Grid gutter="xl">
-                        {quizDetails.teams.map((team: any) => (
+                        {quizData.teams.map((team: any) => (
                             <Grid.Col key={team.id} span={6}>
                                 <Card
                                     shadow="sm"
@@ -268,7 +264,7 @@ const QuizPreviewModal = ({ quizDetails, rounds }: { quizDetails: any, rounds: a
                             </Grid.Col>
                         ))}
                     </Grid>
-                    {rounds.map((round: any, roundIndex: any) => (
+                    {quizData.roundsData.map((round: any, roundIndex: any) => (
                         <Card key={roundIndex} withBorder radius="md" p="lg">
                             {/* Round Header */}
                             <Group justify="space-between" mb="md">
