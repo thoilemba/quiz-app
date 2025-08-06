@@ -1,27 +1,56 @@
 import { useEffect, useState } from "react";
 import { quizData, roundsData } from "../mock-data";
-import { Pause, Play, SkipForward } from "lucide-react";
+import { Check, Pause, Play, SkipForward, X } from "lucide-react";
 import { getRoundIcon } from "./RoundIcon";
 import { useNavigate } from "react-router-dom";
 import type { Question } from "../types";
+import "../App.css";
 
 // Type for rounds data
-interface Round {
-  id: number;
-  name: string;
-  type: 'normal' | 'audio_visual' | 'rapid_fire';
-  timeLimit: number;
-  points: {
-    correct: number;
-    wrong: number;
-    bonus: number;
-    pass: number;
-  };
-  questions: Question[];
-}
+// interface Round {
+//   id: number;
+//   name: string;
+//   type: 'normal' | 'audio_visual' | 'rapid_fire';
+//   timeLimit: number;
+//   points: {
+//     correct: number;
+//     wrong: number;
+//     bonus: number;
+//     pass: number;
+//   };
+//   questions: Question[];
+// }
 
-// Type assertion for roundsData
-const typedRoundsData = roundsData as unknown as Round[];
+// // Type assertion for roundsData
+// const typedRoundsData = roundsData as unknown as Round[];
+
+type Scores = {
+  [key: string]: number;  // or [key: number]: number if team IDs are numbers
+};
+
+
+
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Group,
+  Stack,
+  Paper,
+  TextInput,
+  Box,
+  Badge,
+  Center,
+  Flex,
+  Divider,
+  SimpleGrid,
+  Space,
+  Alert,
+  Image
+} from '@mantine/core';
+import { getQuestionTypeColor } from "./QuestionTypeColor";
+import { getQuestionTypeIcon } from "./QuestionTypeIcon";
 
 function Quiz() {
 
@@ -35,10 +64,23 @@ function Quiz() {
   const [questionStartTime, setQuestionStartTime] = useState(0);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
-  const [quiz, setQuizData] = useState(quizData)
-  const rounds = typedRoundsData;
+  const [quiz,] = useState(quizData);
+  // const rounds = typedRoundsData;
+  const rounds = quiz.roundsData;
   const currentRoundData = rounds[currentRound];
   const currentQuestionData = currentRoundData.questions[currentQuestion];
+
+  const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
+  const currentTeam = quiz.teams[currentTeamIndex];
+
+  const [passCount, setPassCount] = useState(0);
+  const [hasPassed, setHasPassed] = useState(false);
+  const allTeamsTried = passCount >= quiz.teams.length - 1;
+
+  const [scores, setScores] = useState<Scores>(quiz.teams.reduce((acc, team) => ({ ...acc, [team.id]: 0 }), {}));
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [showRapidFireAnswer, setShowRapidFireAnswer] = useState(false);
+
 
   const startQuiz = () => {
     setCurrentRound(0);
@@ -51,42 +93,49 @@ function Quiz() {
     startQuiz();
   }, []);
 
-    // Timer effect
-    useEffect(() => {
-      let interval: NodeJS.Timeout | undefined;
-      if (isTimerRunning && timeLeft > 0) {
-        interval = setInterval(() => {
-          setTimeLeft(prev => prev - 1);
-        }, 1000);
-      } else if (timeLeft === 0 && isTimerRunning) {
-        setIsTimerRunning(false);
-        if (rounds[currentRound].type === 'rapid_fire') {
-          handleRapidFireTimeout();
-        }
-      }
-      return () => clearInterval(interval);
-    }, [isTimerRunning, timeLeft, currentRound]);
+  // Timer effect
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout | undefined;
+  //   if (isTimerRunning && timeLeft > 0) {
+  //     interval = setInterval(() => {
+  //       setTimeLeft(prev => prev - 1);
+  //     }, 1000);
+  //   } else if (timeLeft === 0 && isTimerRunning) {
+  //     setIsTimerRunning(false);
+  //     if (rounds[currentRound].questionType === 'rapid-fire') {
+  //       handleRapidFireTimeout();
+  //     }
+  //   }
+  //   return () => clearInterval(interval);
+  // }, [isTimerRunning, timeLeft, currentRound]);
 
-    const handleRapidFireTimeout = () => {
-      setShowAnswer(true);
-      setAnswerSubmitted(true);
-    };
+  const handleRapidFireTimeout = () => {
+    setShowAnswer(true);
+    setAnswerSubmitted(true);
+  };
 
-    const formatTime = (seconds: number) => {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
-    const pauseTimer = () => {
-      setIsTimerRunning(false);
-    };
-  
-    const resumeTimer = () => {
-      setIsTimerRunning(true);
-    };
+  const pauseTimer = () => {
+    setIsTimerRunning(false);
+  };
+
+  const resumeTimer = () => {
+    setIsTimerRunning(true);
+  };
 
   const nextQuestion = () => {
+    setPassCount(0);
+
+    if (!hasPassed) {
+      setCurrentTeamIndex((prev) => (prev + 1) % quiz.teams.length);
+    }
+    setHasPassed(false);
+
     const currentRoundData = rounds[currentRound];
     if (currentQuestion < currentRoundData.questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
@@ -99,21 +148,23 @@ function Quiz() {
   const navigate = useNavigate();
 
   const nextRound = () => {
+    // setCurrentTeamIndex((prev) => (prev + 1) % quiz.teams.length);
     if (currentRound < rounds.length - 1) {
       setCurrentRound(prev => prev + 1);
       setCurrentQuestion(0);
       startTimer();
     } else {
-      navigate('/results');
+      navigate('/results', { state: { scores } });
     }
   };
 
   const startTimer = () => {
-    const currentRoundData = rounds[currentRound];
-    setTimeLeft(currentRoundData.timeLimit);
+    // const currentRoundData = rounds[currentRound];
+    // setTimeLeft(currentRoundData.timeLimit);
     setIsTimerRunning(true);
     setSelectedAnswer(null);
     setShowAnswer(false);
+    setShowRapidFireAnswer(false);
     setRapidFireAnswer('');
     setQuestionStartTime(Date.now());
     setAnswerSubmitted(false);
@@ -125,276 +176,526 @@ function Quiz() {
   };
 
   const revealAnswer = () => {
+    console.log(selectedAnswer, currentQuestionData.correctAnswer);
     setShowAnswer(true);
     setIsTimerRunning(false);
-  };
 
-  const awardPointsToTeam = (teamId: any, isCorrect: any) => {
-    const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
-    const points = calculatePoints(isCorrect, timeTaken);
-    updateTeamScore(teamId, points);
-  };
-
-  const updateTeamScore = (teamId: number, points: number) => {
-    console.log(teamId, points);
-    setQuizData(prev => ({
-      ...prev,
-      teams: prev.teams.map(team => 
-        team.id === teamId 
-          ? { ...team, score: team.score + points }
-          : team
-      )
-    }));
-  };
-
-  const calculatePoints = ( isCorrect: any, timeTaken: any) => {
-    const currentRoundData = rounds[currentRound];
-    const points = currentRoundData.points;
-    
-    if (!answerSubmitted) {
-      return points.pass; // No answer submitted
+    if (!selectedAnswer) {
+      return;
     }
-    
-    let totalPoints = 0;
-    
-    if (isCorrect) {
-      totalPoints += points.correct;
-      // Bonus points for quick answers
-      const bonusThreshold = currentRoundData.type === 'rapid_fire' ? 3 : 
-                            currentRoundData.type === 'audio_visual' ? 15 : 10;
-      if (timeTaken <= bonusThreshold) {
-        totalPoints += points.bonus;
-      }
+
+    if (selectedAnswer === currentQuestionData.correctAnswer) {
+      markCorrect();
     } else {
-      totalPoints += points.wrong;
+      markWrong();
     }
-    
-    return totalPoints;
   };
 
+  // const awardPointsToTeam = (teamId: any, isCorrect: any) => {
+  //   const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
+  //   const points = calculatePoints(isCorrect, timeTaken);
+  //   updateTeamScore(teamId, points);
+  // };
 
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white">
-        <div className="text-center text-5xl font-bold pt-4">This is a demo quiz</div>
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-2xl font-bold">{quiz.eventName}</h1>
-              <p className="text-blue-200">{quiz.schoolName}</p>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-semibold">Round {currentRound + 1}: {currentRoundData.name}</div>
-              <div className="text-sm text-gray-300">Question {currentQuestion + 1} of {currentRoundData.questions.length}</div>
-            </div>
-          </div>
+  // const updateTeamScore = (teamId: number, points: number) => {
+  //   console.log(teamId, points);
+  //   setQuizData(prev => ({
+  //     ...prev,
+  //     teams: prev.teams.map(team =>
+  //       team.id === teamId
+  //         ? { ...team, score: team.score + points }
+  //         : team
+  //     )
+  //   }));
+  // };
 
-          {/* Timer */}
-          <div className="text-center mb-8">
-            <div className={`text-6xl font-bold mb-4 ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-green-400'}`}>
-              {formatTime(timeLeft)}
-            </div>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={isTimerRunning ? pauseTimer : resumeTimer}
-                className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg flex items-center gap-2"
+  // const calculatePoints = (isCorrect: any, timeTaken: any) => {
+  //   const currentRoundData = rounds[currentRound];
+  //   const points = currentRoundData.points;
+
+  //   if (!answerSubmitted) {
+  //     return points.pass; // No answer submitted
+  //   }
+
+  //   let totalPoints = 0;
+
+  //   if (isCorrect) {
+  //     totalPoints += points.correct;
+  //     // Bonus points for quick answers
+  //     const bonusThreshold = currentRoundData.type === 'rapid_fire' ? 3 :
+  //       currentRoundData.type === 'audio_visual' ? 15 : 10;
+  //     if (timeTaken <= bonusThreshold) {
+  //       totalPoints += points.bonus;
+  //     }
+  //   } else {
+  //     totalPoints += points.wrong;
+  //   }
+
+  //   return totalPoints;
+  // };
+
+  const handlePass = () => {
+    setHasPassed(true);
+    if (!allTeamsTried) {
+      setPassCount((prev) => prev + 1);
+      setCurrentTeamIndex((prevIndex) => (prevIndex + 1) % quiz.teams.length);
+    }
+    // setHasPassed(false);
+  };
+
+  const markCorrect = () => {
+    let points = 10;
+
+    if (passCount == 1) {
+      points = 8;
+    } else if (passCount == 2) {
+      points = 6;
+    } else if (passCount == 3) {
+      points = 4;
+    }
+
+    setScores(prev => ({
+      ...prev,
+      [currentTeam.id]: prev[currentTeam.id] + points
+    }));
+    showToast('Correct!', 'success');
+    // nextTeam();
+  };
+
+  const markWrong = () => {
+    setScores(prev => ({
+      ...prev,
+      [currentTeam.id]: prev[currentTeam.id] - 5
+    }));
+    showToast('Wrong!', 'error');
+    // nextTeam();
+  };
+
+  const showToast = (message: string, type: string) => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: '' });
+    }, 3000);
+  };
+
+  // useEffect(() => {
+  //   if (toast.show) {
+  //     const timer = setTimeout(() => {
+  //       setToast({ show: false, message: '', type: '' });
+  //     }, 2000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [toast.show]);
+
+  // console.log("hasPassed:", hasPassed);
+  // console.log("passCount:", passCount);
+  // console.log("currentTeamIndex:", currentTeamIndex);
+
+  return (
+    <Box
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #581c87 50%, #312e81 100%)',
+        color: 'white',
+      }}
+    >
+      <Center>
+        <Stack
+          style={{ paddingTop: '1rem', marginBottom: '1rem', textAlign: 'center', gap: 0 }}
+        >
+          <Title order={2}>
+            PARI IMOM KHWAI SHINDAM SHANG
+          </Title>
+          <Text size="lg">Pangei, Imphal East</Text>
+        </Stack>
+      </Center>
+      <Divider />
+
+      <Container size="xl" px="md" py="md">
+        {/* Header */}
+        <Flex justify="space-between" align="flex-start">
+          <Box>
+            <Title order={2} size="1.5rem">
+              Quiz Name: {quiz.quizName}
+            </Title>
+            <Text size="md" style={{ color: '#93c5fd' }}>
+              Quiz Master: {quiz.quizMaster}
+            </Text>
+          </Box>
+
+          <Box style={{ textAlign: 'right' }}>
+            <Text size="lg" fw={600}>
+              Round {currentRound + 1}: {currentRoundData.roundName}
+            </Text>
+            <Group gap="xs" justify="center">
+              {/* {getQuestionTypeIcon(currentRoundData.questionType)} */}
+              <Badge
+                variant="outline"
+                color={getQuestionTypeColor(currentRoundData.questionType)}
+                size="sm"
+                style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
-                {isTimerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                <Flex gap="xs">
+                  {getQuestionTypeIcon(currentRoundData.questionType)}{currentRoundData.questionType}
+                </Flex>
+              </Badge>
+              <Text size="sm" style={{ color: '#d1d5db' }}>
+                Question {currentQuestion + 1} of {currentRoundData.questions.length}
+              </Text>
+            </Group>
+
+          </Box>
+        </Flex>
+
+        {/* Timer */}
+        {/* <Stack align="center" mb="xl">
+            <Text
+              size="3rem"
+              fw={700}
+              style={{
+                color: timeLeft <= 10 ? '#f87171' : '#4ade80',
+                animation: timeLeft <= 10 ? 'pulse 1s infinite' : 'none',
+              }}
+            >
+              {formatTime(timeLeft)}
+            </Text>
+            <Group gap="md">
+              <Button
+                onClick={isTimerRunning ? pauseTimer : resumeTimer}
+                color="yellow"
+                leftSection={isTimerRunning ? <Pause size={16} /> : <Play size={16} />}
+              >
                 {isTimerRunning ? 'Pause' : 'Resume'}
-              </button>
+              </Button>
               {currentRoundData.type !== 'rapid_fire' && (
-                <button
-                  onClick={()=>{
+                <Button
+                  onClick={() => {
                     const currentRoundData = rounds[currentRound];
-    if (currentRoundData.type !== 'rapid_fire') {
-      nextQuestion();
-    }}}
-                  className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center gap-2"
-                >
-                  <SkipForward className="w-4 h-4" />
-                  Pass
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Question */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8">
-            <div className="text-center mb-6">
-              <div className="flex justify-center items-center gap-2 mb-4">
-                {getRoundIcon(currentRoundData.type)}
-                <span className="text-sm uppercase tracking-wide text-gray-300">
-                  {currentRoundData.type.replace('_', ' ')} Round
-                </span>
-              </div>
-              
-              {currentRoundData.type === 'audio_visual' && currentQuestionData.media && (
-                <div className="text-8xl mb-6">{currentQuestionData.media}</div>
-              )}
-              
-              <h2 className="text-2xl font-bold mb-6">{currentQuestionData.question}</h2>
-            </div>
-
-            {/* Answers */}
-            {currentRoundData.type === 'rapid_fire' ? (
-              <div className="max-w-md mx-auto">
-                <input
-                  type="text"
-                  value={rapidFireAnswer}
-                  onChange={(e) => setRapidFireAnswer(e.target.value)}
-                  placeholder="Type your answer..."
-                  className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 text-lg"
-                  disabled={showAnswer}
-                />
-                <button
-                  // onClick={handleRapidFireSubmit}
-                  disabled={showAnswer || !rapidFireAnswer.trim()}
-                  className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 px-4 py-3 rounded-lg font-bold"
-                >
-                  Submit Answer
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-                {currentQuestionData.options?.map((option, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleAnswerSelect(idx)}
-                    disabled={showAnswer}
-                    className={`p-4 rounded-lg text-left transition-all duration-300 ${
-                      showAnswer
-                        ? idx === currentQuestionData.correct
-                          ? 'bg-green-500 text-white'
-                          : selectedAnswer === idx
-                          ? 'bg-red-500 text-white'
-                          : 'bg-white/20 text-gray-300'
-                        : selectedAnswer === idx
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white/20 hover:bg-white/30 text-white'
-                    }`}
-                  >
-                    <span className="font-bold mr-3">{String.fromCharCode(65 + idx)}.</span>
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Show Answer Button */}
-            {!showAnswer && currentRoundData.type !== 'rapid_fire' && (
-              <div className="text-center mt-6">
-                <button
-                  onClick={revealAnswer}
-                  className="bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-lg font-bold"
-                >
-                  Reveal Answer
-                </button>
-              </div>
-            )}
-
-            {/* Answer Revealed */}
-            {showAnswer && (
-              <div className="mt-8 p-6 bg-white/20 rounded-xl">
-                <div className="text-center mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-green-400">Correct Answer:</h3>
-                  <p className="text-xl mb-4">
-                    {currentRoundData.type === 'rapid_fire' 
-                      ? String(currentQuestionData.correct)
-                      : currentQuestionData.options && typeof currentQuestionData.correct === 'number'
-                        ? `${String.fromCharCode(65 + currentQuestionData.correct)}. ${currentQuestionData.options[currentQuestionData.correct]}`
-                        : 'No answer available'
+                    if (currentRoundData.type !== 'rapid_fire') {
+                      nextQuestion();
                     }
-                  </p>
-                  
-                  {/* Points Information */}
-                  <div className="bg-white/10 rounded-lg p-4 mb-6">
-                    <h4 className="font-bold mb-2">Points System for this Round:</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                      <div className="text-green-400">
-                        <span className="font-semibold">Correct:</span> +{currentRoundData.points.correct}
-                      </div>
-                      <div className="text-red-400">
-                        <span className="font-semibold">Wrong:</span> {currentRoundData.points.wrong}
-                      </div>
-                      <div className="text-yellow-400">
-                        <span className="font-semibold">Bonus:</span> +{currentRoundData.points.bonus}
-                      </div>
-                      <div className="text-gray-400">
-                        <span className="font-semibold">Pass:</span> {currentRoundData.points.pass}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-300 mt-2">
-                      Bonus points awarded for quick answers (within {
-                        currentRoundData.type === 'rapid_fire' ? '3' : 
-                        currentRoundData.type === 'audio_visual' ? '15' : '10'
-                      } seconds)
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Score Update */}
-                <div className="text-center">
-                  <h4 className="font-bold mb-4">Award Points to Teams:</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {quiz.teams.map(team => (
-                      <div key={team.id} className="bg-white/10 rounded-lg p-4">
-                        <div className="font-semibold mb-3">{team.name}</div>
-                        <div className="flex flex-wrap gap-2 justify-center">
-                          <button
-                            onClick={() => awardPointsToTeam(team.id, true)}
-                            className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm flex items-center gap-1"
-                          >
-                            ✓ Correct
-                            <span className="text-xs">
-                              (+{currentRoundData.points.correct}
-                              {answerSubmitted && (Date.now() - questionStartTime) / 1000 <= (currentRoundData.type === 'rapid_fire' ? 3 : currentRoundData.type === 'audio_visual' ? 15 : 10) ? `+${currentRoundData.points.bonus}` : ''}
-                              )
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => awardPointsToTeam(team.id, false)}
-                            className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm flex items-center gap-1"
-                          >
-                            ✗ Wrong
-                            <span className="text-xs">({currentRoundData.points.wrong})</span>
-                          </button>
-                          <button
-                            onClick={() => updateTeamScore(team.id, currentRoundData.points.pass)}
-                            className="bg-gray-500 hover:bg-gray-600 px-3 py-1 rounded text-sm flex items-center gap-1"
-                          >
-                            Pass
-                            <span className="text-xs">({currentRoundData.points.pass})</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                  }}
+                  color="gray"
+                  leftSection={<SkipForward size={16} />}
+                >
+                  Pass
+                </Button>
+              )}
+            </Group>
+          </Stack> */}
 
-                <div className="text-center mt-6">
-                  <button
-                    onClick={nextQuestion}
-                    className="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-lg font-bold"
-                  >
-                    {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
-                  </button>
-                </div>
-              </div>
+        {/* {toast.show && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate">
+          <div className={`px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 ${
+            toast.type === 'success' 
+              ? 'bg-green-500 text-white' 
+              : 'bg-red-500 text-white'
+          }`}>
+            {toast.type === 'success' ? (
+              <Check className="w-6 h-6" />
+            ) : (
+              <X className="w-6 h-6" />
             )}
-          </div>
-
-          {/* Team Scores */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {quiz.teams.map(team => (
-              <div key={team.id} className="bg-white/10 backdrop-blur-md rounded-xl p-4 text-center">
-                <h3 className="font-bold text-yellow-300">{team.name}</h3>
-                <div className="text-2xl font-bold text-green-400">{team.score}</div>
-              </div>
-            ))}
+            <span className="font-semibold text-lg">{toast.message}</span>
           </div>
         </div>
-      </div>
-    );
+      )} */}
+
+
+        {toast.show && (
+          <div className="toast-container animate">
+            <div className={`toast ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`}>
+              {toast.type === 'success' ? (
+                <Check className="toast-icon" />
+              ) : (
+                <X className="toast-icon" />
+              )}
+              <span className="toast-message">{toast.message}</span>
+            </div>
+          </div>
+        )}
+
+        <Title order={2} c="yellow" fw={700} ta="center">
+          Question To: {currentTeam.name} {hasPassed ? '(Passed)' : ''}
+        </Title>
+        <Space h="md" />
+        <Flex>
+          <Box style={{ flex: 3, }}>
+            {/* Question */}
+            <Paper
+              p="lg"
+              mb="xl"
+              radius="md"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(12px)',
+                // border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <Stack align="center" mb="lg">
+                {currentRoundData.questionType === 'audio-visual' && 'media' in currentQuestionData && currentQuestionData.media && (
+                  <Box>
+                    {/* Image Preview */}
+                    {currentQuestionData.media.type === 'image' && currentQuestionData.media.data && (
+                      <img
+                        src={currentQuestionData.media.data}
+                        alt="Preview"
+                        style={{ maxWidth: '200px', maxHeight: '200px' }}
+                      />
+                    )}
+                    {/* Audio Preview */}
+                    {currentQuestionData.media.type === 'audio' && currentQuestionData.media.data && (
+                      <audio controls>
+                        <source src={currentQuestionData.media.data} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                      </audio>
+                    )}
+                  </Box>
+                )}
+
+                <Title order={2} size="1.5rem" fw={700} ta="center">
+                  {currentQuestionData.statement}
+                </Title>
+              </Stack>
+
+              {/* Options */}
+              {currentRoundData.questionType === 'rapid-fire' ? (
+                <Box style={{ maxWidth: '28rem', margin: '0 auto' }}>
+                  {/* <TextInput
+                    size="lg"
+                    value={rapidFireAnswer}
+                    onChange={(e) => setRapidFireAnswer(e.target.value)}
+                    placeholder="Type your answer..."
+                    disabled={showAnswer}
+                    styles={{
+                      input: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        color: 'white',
+                        '&::placeholder': {
+                          color: '#d1d5db',
+                        },
+                      },
+                    }}
+                  /> */}
+
+                  {showRapidFireAnswer && (
+                    <Text size="xl" fw={700} ta="center" c="green">
+                      {currentQuestionData.correctAnswer}
+                    </Text>
+                  )}
+
+
+                  {showRapidFireAnswer ? (
+                    <Center>
+                      <Button
+                        onClick={nextQuestion}
+                        color="violet"
+                        size="lg"
+                        fw={700}
+                        mt="md"
+                      >
+                        {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
+                      </Button>
+                    </Center>
+                  ) :
+                    <Center>
+                      <Button
+                        mt="md"
+                        size="lg"
+                        color="orange"
+                        disabled={showRapidFireAnswer}
+                        onClick={() => setShowRapidFireAnswer(true)}
+                      >
+                        Reveal Answer
+                      </Button>
+                    </Center>}
+                </Box>
+              ) : (
+                <SimpleGrid
+                  cols={{ base: 1, md: 2 }}
+                  spacing="md"
+                // style={{ maxWidth: '64rem', margin: '0 auto' }}
+                >
+                  {"options" in currentQuestionData && currentQuestionData.options?.map((option, idx) => (
+                    <Button
+                      key={idx}
+                      fullWidth
+                      size="lg"
+                      variant="outline"
+                      // select and deselect allow
+                      onClick={() => {
+                        if (selectedAnswer === option) {
+                          setSelectedAnswer(null);
+                        } else {
+                          handleAnswerSelect(option);
+                        }
+                      }}
+                      disabled={showAnswer}
+                      styles={{
+                        root: {
+                          height: 'auto',
+                          padding: '1rem',
+                          textAlign: 'left',
+                          justifyContent: 'flex-start',
+                          transition: 'all 300ms ease',
+                          backgroundColor: showAnswer
+                            ? option === currentQuestionData.correctAnswer
+                              ? '#10b981' // green for correct
+                              : selectedAnswer === option
+                                ? '#ef4444' // red for incorrect selection
+                                : 'rgba(255, 255, 255, 0.2)'
+                            : selectedAnswer === option
+                              ? '#3b82f6' // blue for selected
+                              : 'rgba(255, 255, 255, 0.2)',
+                          color:
+                            showAnswer && selectedAnswer !== option && option !== currentQuestionData.correctAnswer
+                              ? '#d1d5db'
+                              : 'white',
+                          '&:hover': !showAnswer
+                            ? {
+                              backgroundColor:
+                                selectedAnswer === option
+                                  ? '#3b82f6'
+                                  : 'rgba(255, 255, 255, 0.3)',
+                            }
+                            : {},
+                        },
+                      }}
+                    >
+                      <Text fw={700} mr="xs">
+                        {String.fromCharCode(65 + idx)}.
+                      </Text>
+                      {option}
+                    </Button>
+                  ))}
+                </SimpleGrid>
+              )}
+
+              {/* Reveal Answer and Pass Buttons */}
+              <Group justify="center" mt="md">
+                {/* Show Answer Button */}
+                {!showAnswer && currentRoundData.questionType !== 'rapid-fire' && (
+                  <Group gap="md">
+                    <Button
+                      onClick={revealAnswer}
+                      color="orange"
+                      size="lg"
+                      fw={700}
+                    >
+                      Reveal Answer
+                    </Button>
+                    <Button
+                      size="lg"
+                      fw={700}
+                      disabled={allTeamsTried}
+                      // onClick={() => {
+                      //   if(!allTeamsTried){
+                      //     setPassCount((prev) => prev + 1);
+                      //     setCurrentTeamIndex((prevIndex) => (prevIndex + 1) % quiz.teams.length);
+                      //   }
+                      //   // const currentRoundData = rounds[currentRound];
+                      //   // if (currentRoundData.type !== 'rapid_fire') {
+                      //   //   nextQuestion();
+                      //   // }
+                      // }}
+                      onClick={handlePass}
+                      color="green"
+                      leftSection={<SkipForward size={16} />}
+                    >
+                      Pass
+                    </Button>
+                  </Group>
+                )}
+              </Group>
+
+              {/* Answer Revealed */}
+              {showAnswer && (
+                // <Paper
+                //   mt=""
+                //   p="md"
+                //   radius="lg"
+                //   style={{
+                //     backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                //   }}
+                // >
+                <Group justify="center">
+                  {/* <Title order={3} size="1.125rem" fw={700} style={{ color: '#4ade80' }}>
+                      Correct Answer: &nbsp;
+                      {currentRoundData.questionType === 'rapid-fire'
+                        ? String(currentQuestionData.correct)
+                        : currentQuestionData.options && typeof currentQuestionData.correct === 'number'
+                          ? `${String.fromCharCode(65 + currentQuestionData.correct)}. ${currentQuestionData.options[currentQuestionData.correct]}`
+                          : 'No answer available'
+                      }
+                    </Title> */}
+                  <Button
+                    onClick={nextQuestion}
+                    color="violet"
+                    size="lg"
+                    fw={700}
+                  >
+                    {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
+                  </Button>
+                </Group>
+                // </Paper>
+              )}
+            </Paper>
+          </Box>
+          <Space w="md" />
+          {/* Team Scores */}
+          {/* <Paper
+              p="md"
+              mb="xl"
+              radius="xl"
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(12px)',
+                // border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+                <Title order={4} fw={700} ta="center">
+                  Team Scores
+                </Title>
+                <Stack gap="xs" justify="center" align="center">
+                  <Text>Alpha: 10</Text>
+                  <Text>Beta: 20</Text>
+                  <Text>Gamma: 30</Text>
+                  <Text>Delta: 40</Text>
+                </Stack>
+          </Paper> */}
+        </Flex>
+        <Paper
+          p="md"
+          mb="xl"
+          radius="md"
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(12px)',
+            // border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <Title order={3} fw={700} ta="center">
+            Team Scores
+          </Title>
+          <Group gap="lg" justify="center" mt="md">
+            {/* <Text size="lg">Alpha: 10</Text>
+            <Text size="lg">Beta: 20</Text>
+            <Text size="lg">Gamma: 30</Text>
+            <Text size="lg">Delta: 40</Text> */}
+
+            {quiz.teams.map((team) => (
+              <Text size="lg" key={team.id}>
+                {team.name}: {scores[team.id]}
+              </Text>
+            ))}
+          </Group>
+        </Paper>
+      </Container>
+    </Box>
+  );
 }
 
 export default Quiz;
