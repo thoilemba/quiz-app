@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 // import { quizData } from "../mock-data";
 import { Check, SkipForward, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../App.css";
+import "../App.css"; 
 
 
 type Scores = {
@@ -274,13 +274,27 @@ function Quiz() {
   // console.log("passCount:", passCount);
   // console.log("currentTeamIndex:", currentTeamIndex);
 
-  // Or you can create them inline
-  const playCorrectSound = () => {
-      new Audio('/sounds/correct.wav').play();
-  };
 
-  const playWrongSound = () => {
-    new Audio('/sounds/wrong.wav').play();
+  // const playCorrectSound = () => {
+  //     new Audio('/sounds/correct.wav').play();
+  // };
+
+  // const playWrongSound = () => {
+  //   new Audio('/sounds/wrong.wav').play();
+  // };
+
+  // For desktop app
+  const playCorrectSound = async () => {
+    const soundPath = await window.electronAPI.playCorrectSound();
+    const audio = new Audio(soundPath);
+    audio.play();
+  };
+  
+  // For desktop app
+  const playWrongSound = async () => {
+    const soundPath = await window.electronAPI.playWrongSound();
+    const audio = new Audio(soundPath);
+    audio.play();
   };
 
   return (

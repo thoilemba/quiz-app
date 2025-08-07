@@ -13,6 +13,8 @@ declare global {
     electronAPI: {
       saveQuizJSON: (data: any) => Promise<{ success: boolean; error?: string; message?: string }>;
       loadQuizJson: () => Promise<any>;
+      playCorrectSound: () => Promise<string>;
+      playWrongSound: () => Promise<string>;
     };
   }
 }

@@ -10,7 +10,7 @@ import CreateTeams from './pages/create-teams'
 import CreateRounds from './pages/create-rounds'
 import CreateQuestions from './pages/create-questions';
 import HomePage from './pages/home';
-import QuizStart from './pages/quiz-start';
+// import QuizStart from './pages/quiz-start';
 
 function App() {
 
