@@ -220,6 +220,8 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
             >
                 <QuizInfo
                     quizName={quizData.quizName}
+                    schoolName={quizData.schoolName}
+                    address={quizData.address}
                     numberOfTeams={quizData.numberOfTeams}
                     numberOfMembers={quizData.numberOfMembers}
                     numberOfRounds={quizData.numberOfRounds}
@@ -344,7 +346,8 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
                                                         <Stack gap="xs">
                                                             {question.options.map((option: any, optionIndex: any) => {
                                                                 const optionLetter = String.fromCharCode(65 + optionIndex);
-                                                                const isCorrect = question.correctOption === `Option ${optionLetter}`;
+                                                                // const isCorrect = question.correctOption === `Option ${optionLetter}`;
+                                                                const isCorrect = question.correctOption === option;
                                                                 return (
                                                                     <Paper
                                                                         key={optionIndex}

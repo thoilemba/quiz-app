@@ -497,197 +497,197 @@
 // export default QuizStart;
 
 // Grok
-import { Button, Card, Checkbox, Flex, Grid, Image, Select, Text, Title } from "@mantine/core";
-import { ChevronRight } from "lucide-react";
-import React from "react";
+// import { Button, Card, Checkbox, Flex, Grid, Image, Select, Text, Title } from "@mantine/core";
+// import { ChevronRight } from "lucide-react";
+// import React from "react";
 
-export default function QuizStart() {
+// export default function QuizStart() {
 
 
-    const quizData = {
-        "quizName": "Testing",
-        "numberOfTeams": 4,
-        "numberOfRounds": 3,
-        "quizMaster": "Dr. John",
-        "teams": [
-          { "id": 1, "name": "Alpha", "members": ["Jack", "Mike", "Alice", "Rose"] },
-          { "id": 2, "name": "Beta", "members": ["Bob", "Mary", "Henry", "Tom"] },
-          { "id": 3, "name": "Gamma", "members": ["Khuraijam Tomba Singh", "Yumnam Chaoba Meitei", "Keithelakpam Thoiba Meitei", "Moirangthem Ibochouba Singh"] },
-          { "id": 4, "name": "Delta", "members": ["Kumar Raj", "Arjun Singh", "Ritesh Patel", "Ramesh Agarwal"] }
-        ],
-        "roundsData": [
-          {
-            "roundNumber": 1,
-            "numberOfQuestions": 3,
-            "questionType": "normal",
-            "questions": [
-              { "statement": "Which planet is known as red planet?", "options": ["Mercury", "Jupiter", "Mars", "Saturn"], "correctOption": "Option C" },
-              { "statement": "Which is the largest planet?", "options": ["Saturn", "Jupiter", "Neptune", "Uranus"], "correctOption": "Option B" },
-              { "statement": "Which is the largest country?", "options": ["China", "Germany", "USA", "Russia"], "correctOption": "Option D" }
-            ]
-          },
-          {
-            "roundNumber": 2,
-            "numberOfQuestions": 2,
-            "questionType": "audio-visual",
-            "questions": [
-              { "statement": "Who sang this song?", "media": { "type": "audio", "name": "", "data": "data:audio/x-m4a;base64," }, "options": ["Priya", "Gita", "Luxmi", "Rita"], "correctOption": "Option A" },
-              { "statement": "Who is in this picture?", "media": { "type": "image", "name": "", "data": "data:image/png;base64," }, "options": ["Ram", "Arjun", "Krishna", "Mahesh"], "correctOption": "Option C" }
-            ]
-          },
-          {
-            "roundNumber": 3,
-            "numberOfQuestions": 2,
-            "questionType": "rapid-fire",
-            "questions": [
-              { "statement": "What is the 2+3?", "correctAnswer": "5" },
-              { "statement": "What comes after saturday?", "correctAnswer": "Sunday" }
-            ]
-          }
-        ]
-      };
+//     const quizData = {
+//         "quizName": "Testing",
+//         "numberOfTeams": 4,
+//         "numberOfRounds": 3,
+//         "quizMaster": "Dr. John",
+//         "teams": [
+//           { "id": 1, "name": "Alpha", "members": ["Jack", "Mike", "Alice", "Rose"] },
+//           { "id": 2, "name": "Beta", "members": ["Bob", "Mary", "Henry", "Tom"] },
+//           { "id": 3, "name": "Gamma", "members": ["Khuraijam Tomba Singh", "Yumnam Chaoba Meitei", "Keithelakpam Thoiba Meitei", "Moirangthem Ibochouba Singh"] },
+//           { "id": 4, "name": "Delta", "members": ["Kumar Raj", "Arjun Singh", "Ritesh Patel", "Ramesh Agarwal"] }
+//         ],
+//         "roundsData": [
+//           {
+//             "roundNumber": 1,
+//             "numberOfQuestions": 3,
+//             "questionType": "normal",
+//             "questions": [
+//               { "statement": "Which planet is known as red planet?", "options": ["Mercury", "Jupiter", "Mars", "Saturn"], "correctOption": "Option C" },
+//               { "statement": "Which is the largest planet?", "options": ["Saturn", "Jupiter", "Neptune", "Uranus"], "correctOption": "Option B" },
+//               { "statement": "Which is the largest country?", "options": ["China", "Germany", "USA", "Russia"], "correctOption": "Option D" }
+//             ]
+//           },
+//           {
+//             "roundNumber": 2,
+//             "numberOfQuestions": 2,
+//             "questionType": "audio-visual",
+//             "questions": [
+//               { "statement": "Who sang this song?", "media": { "type": "audio", "name": "", "data": "data:audio/x-m4a;base64," }, "options": ["Priya", "Gita", "Luxmi", "Rita"], "correctOption": "Option A" },
+//               { "statement": "Who is in this picture?", "media": { "type": "image", "name": "", "data": "data:image/png;base64," }, "options": ["Ram", "Arjun", "Krishna", "Mahesh"], "correctOption": "Option C" }
+//             ]
+//           },
+//           {
+//             "roundNumber": 3,
+//             "numberOfQuestions": 2,
+//             "questionType": "rapid-fire",
+//             "questions": [
+//               { "statement": "What is the 2+3?", "correctAnswer": "5" },
+//               { "statement": "What comes after saturday?", "correctAnswer": "Sunday" }
+//             ]
+//           }
+//         ]
+//       };
 
-    const [currentRound, setCurrentRound] = React.useState(0);
-    const [currentQuestion, setCurrentQuestion] = React.useState(0);
-    const [scores, setScores] = React.useState({});
-    const [isAnswerRevealed, setIsAnswerRevealed] = React.useState(false);
-    const [correctTeams, setCorrectTeams] = React.useState([]);
-    const [selectedTeam, setSelectedTeam] = React.useState(null);
-    const [quizEnded, setQuizEnded] = React.useState(false);
+//     const [currentRound, setCurrentRound] = React.useState(0);
+//     const [currentQuestion, setCurrentQuestion] = React.useState(0);
+//     const [scores, setScores] = React.useState({});
+//     const [isAnswerRevealed, setIsAnswerRevealed] = React.useState(false);
+//     const [correctTeams, setCorrectTeams] = React.useState([]);
+//     const [selectedTeam, setSelectedTeam] = React.useState(null);
+//     const [quizEnded, setQuizEnded] = React.useState(false);
 
-    const currentRoundData = quizData.roundsData[currentRound];
-    const currentQuestionData = currentRoundData.questions[currentQuestion];
+//     const currentRoundData = quizData.roundsData[currentRound];
+//     const currentQuestionData = currentRoundData.questions[currentQuestion];
 
-    const handleRevealAnswer = () => setIsAnswerRevealed(true);
+//     const handleRevealAnswer = () => setIsAnswerRevealed(true);
 
-    const handleNext = () => {
-      if (isAnswerRevealed) {
-        if (currentRoundData.questionType === 'rapid-fire' && selectedTeam !== null) {
-          setScores(prev => ({ ...prev, [selectedTeam]: (prev[selectedTeam] || 0) + 1 }));
-        } else {
-          correctTeams.forEach(teamId => {
-            setScores(prev => ({ ...prev, [teamId]: (prev[teamId] || 0) + 1 }));
-          });
-        }
-        if (currentQuestion < currentRoundData.numberOfQuestions - 1) {
-          setCurrentQuestion(prev => prev + 1);
-        } else if (currentRound < quizData.numberOfRounds - 1) {
-          setCurrentRound(prev => prev + 1);
-          setCurrentQuestion(0);
-        } else {
-          setQuizEnded(true);
-        }
-        setIsAnswerRevealed(false);
-        setCorrectTeams([]);
-        setSelectedTeam(null);
-      }
-    };
+//     const handleNext = () => {
+//       if (isAnswerRevealed) {
+//         if (currentRoundData.questionType === 'rapid-fire' && selectedTeam !== null) {
+//           setScores(prev => ({ ...prev, [selectedTeam]: (prev[selectedTeam] || 0) + 1 }));
+//         } else {
+//           correctTeams.forEach(teamId => {
+//             setScores(prev => ({ ...prev, [teamId]: (prev[teamId] || 0) + 1 }));
+//           });
+//         }
+//         if (currentQuestion < currentRoundData.numberOfQuestions - 1) {
+//           setCurrentQuestion(prev => prev + 1);
+//         } else if (currentRound < quizData.numberOfRounds - 1) {
+//           setCurrentRound(prev => prev + 1);
+//           setCurrentQuestion(0);
+//         } else {
+//           setQuizEnded(true);
+//         }
+//         setIsAnswerRevealed(false);
+//         setCorrectTeams([]);
+//         setSelectedTeam(null);
+//       }
+//     };
 
-    const renderQuestion = () => {
-      const { statement, options, media, correctOption, correctAnswer } = currentQuestionData;
-      const correctIndex = correctOption ? correctOption.split(' ')[1].charCodeAt(0) - 65 : -1;
+//     const renderQuestion = () => {
+//       const { statement, options, media, correctOption, correctAnswer } = currentQuestionData;
+//       const correctIndex = correctOption ? correctOption.split(' ')[1].charCodeAt(0) - 65 : -1;
 
-      return (
-        <Card shadow="sm" p="lg" style={{ height: '100%', overflow: 'hidden' }}>
-          <Title order={3}>{statement}</Title>
-          {media && media.type === 'audio' && (
-            <audio controls src={media.data} style={{ marginTop: '10px' }} />
-          )}
-          {media && media.type === 'image' && (
-            <Image src={media.data} alt="Question media" fit="contain" style={{ maxHeight: '200px', marginTop: '10px' }} />
-          )}
-          {options && (
-            <div style={{ marginTop: '10px' }}>
-              {options.map((option, index) => {
-                const isCorrect = isAnswerRevealed && index === correctIndex;
-                return (
-                  <Text key={index} style={{ color: isCorrect ? 'green' : 'black' }}>
-                    {String.fromCharCode(65 + index)}. {option} {isCorrect && '(Correct)'}
-                  </Text>
-                );
-              })}
-            </div>
-          )}
-          {isAnswerRevealed && correctAnswer && (
-            <Text style={{ marginTop: '10px' }}>Correct Answer: {correctAnswer}</Text>
-          )}
-        </Card>
-      );
-    };
+//       return (
+//         <Card shadow="sm" p="lg" style={{ height: '100%', overflow: 'hidden' }}>
+//           <Title order={3}>{statement}</Title>
+//           {media && media.type === 'audio' && (
+//             <audio controls src={media.data} style={{ marginTop: '10px' }} />
+//           )}
+//           {media && media.type === 'image' && (
+//             <Image src={media.data} alt="Question media" fit="contain" style={{ maxHeight: '200px', marginTop: '10px' }} />
+//           )}
+//           {options && (
+//             <div style={{ marginTop: '10px' }}>
+//               {options.map((option, index) => {
+//                 const isCorrect = isAnswerRevealed && index === correctIndex;
+//                 return (
+//                   <Text key={index} style={{ color: isCorrect ? 'green' : 'black' }}>
+//                     {String.fromCharCode(65 + index)}. {option} {isCorrect && '(Correct)'}
+//                   </Text>
+//                 );
+//               })}
+//             </div>
+//           )}
+//           {isAnswerRevealed && correctAnswer && (
+//             <Text style={{ marginTop: '10px' }}>Correct Answer: {correctAnswer}</Text>
+//           )}
+//         </Card>
+//       );
+//     };
 
-    const renderScoreboard = () => (
-      <Card shadow="sm" p="lg" style={{ marginBottom: '20px' }}>
-        <Title order={4}>Scoreboard</Title>
-        {quizData.teams.map(team => (
-          <Text key={team.id}>{team.name}: {scores[team.id] || 0}</Text>
-        ))}
-      </Card>
-    );
+//     const renderScoreboard = () => (
+//       <Card shadow="sm" p="lg" style={{ marginBottom: '20px' }}>
+//         <Title order={4}>Scoreboard</Title>
+//         {quizData.teams.map(team => (
+//           <Text key={team.id}>{team.name}: {scores[team.id] || 0}</Text>
+//         ))}
+//       </Card>
+//     );
 
-    const renderControls = () => (
-      <Card shadow="sm" p="lg">
-        {!isAnswerRevealed ? (
-          <Button onClick={handleRevealAnswer}>Reveal Answer</Button>
-        ) : (
-          <>
-            {currentRoundData.questionType === 'rapid-fire' ? (
-              <Select
-                label="Select team that answered correctly"
-                placeholder="Select team"
-                data={quizData.teams.map(team => ({ value: team.id.toString(), label: team.name }))}
-                value={selectedTeam?.toString() || null}
-                onChange={value => setSelectedTeam(value ? parseInt(value) : null)}
-                style={{ marginBottom: '10px' }}
-              />
-            ) : (
-              <div>
-                <Text>Mark teams that answered correctly:</Text>
-                {quizData.teams.map(team => (
-                  <Checkbox
-                    key={team.id}
-                    label={team.name}
-                    checked={correctTeams.includes(team.id)}
-                    onChange={event => {
-                      if (event.currentTarget.checked) {
-                        setCorrectTeams(prev => [...prev, team.id]);
-                      } else {
-                        setCorrectTeams(prev => prev.filter(id => id !== team.id));
-                      }
-                    }}
-                    style={{ marginTop: '5px' }}
-                  />
-                ))}
-              </div>
-            )}
-            <Button onClick={handleNext} mt="md" rightSection={<ChevronRight />}>
-              Next Question
-            </Button>
-          </>
-        )}
-      </Card>
-    );
+//     const renderControls = () => (
+//       <Card shadow="sm" p="lg">
+//         {!isAnswerRevealed ? (
+//           <Button onClick={handleRevealAnswer}>Reveal Answer</Button>
+//         ) : (
+//           <>
+//             {currentRoundData.questionType === 'rapid-fire' ? (
+//               <Select
+//                 label="Select team that answered correctly"
+//                 placeholder="Select team"
+//                 data={quizData.teams.map(team => ({ value: team.id.toString(), label: team.name }))}
+//                 value={selectedTeam?.toString() || null}
+//                 onChange={value => setSelectedTeam(value ? parseInt(value) : null)}
+//                 style={{ marginBottom: '10px' }}
+//               />
+//             ) : (
+//               <div>
+//                 <Text>Mark teams that answered correctly:</Text>
+//                 {quizData.teams.map(team => (
+//                   <Checkbox
+//                     key={team.id}
+//                     label={team.name}
+//                     checked={correctTeams.includes(team.id)}
+//                     onChange={event => {
+//                       if (event.currentTarget.checked) {
+//                         setCorrectTeams(prev => [...prev, team.id]);
+//                       } else {
+//                         setCorrectTeams(prev => prev.filter(id => id !== team.id));
+//                       }
+//                     }}
+//                     style={{ marginTop: '5px' }}
+//                   />
+//                 ))}
+//               </div>
+//             )}
+//             <Button onClick={handleNext} mt="md" rightSection={<ChevronRight />}>
+//               Next Question
+//             </Button>
+//           </>
+//         )}
+//       </Card>
+//     );
 
-    if (quizEnded) {
-      return (
-        <Flex direction="column" align="center" justify="center" style={{ height: '100vh' }}>
-          <Title>Quiz Ended</Title>
-          {renderScoreboard()}
-        </Flex>
-      );
-    }
+//     if (quizEnded) {
+//       return (
+//         <Flex direction="column" align="center" justify="center" style={{ height: '100vh' }}>
+//           <Title>Quiz Ended</Title>
+//           {renderScoreboard()}
+//         </Flex>
+//       );
+//     }
 
-    return (
-      <Grid style={{ height: '100vh', padding: '20px' }}>
-        <Grid.Col span={8}>
-          {renderQuestion()}
-        </Grid.Col>
-        <Grid.Col span={4}>
-          {renderScoreboard()}
-          {renderControls()}
-        </Grid.Col>
-      </Grid>
-    );
-}
+//     return (
+//       <Grid style={{ height: '100vh', padding: '20px' }}>
+//         <Grid.Col span={8}>
+//           {renderQuestion()}
+//         </Grid.Col>
+//         <Grid.Col span={4}>
+//           {renderScoreboard()}
+//           {renderControls()}
+//         </Grid.Col>
+//       </Grid>
+//     );
+// }
 
 
 

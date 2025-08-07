@@ -446,7 +446,7 @@ import QuizInfo from "../components/QuizInfo";
 export default function CreateRounds() {
 
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, quizMaster } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, quizMaster, schoolName, address } = location.state || {};
     const navigate = useNavigate();
 
     // Initialize rounds configuration
@@ -495,8 +495,11 @@ export default function CreateRounds() {
         // Here you would typically navigate to the next step or save the configuration
         console.log("Quiz Configuration:", {
             quizName,
+            schoolName,
+            address,
             numberOfTeams,
             numberOfMembers,
+            numberOfRounds,
             teams,
             quizMaster,
             roundsConfig,
@@ -504,6 +507,8 @@ export default function CreateRounds() {
         navigate('/create-questions', {
             state: {
                 quizName,
+                schoolName,
+                address,
                 numberOfTeams,
                 numberOfMembers,
                 numberOfRounds,
@@ -603,6 +608,8 @@ export default function CreateRounds() {
             </Group> */}
             <QuizInfo
                 quizName={quizName}
+                schoolName={schoolName}
+                address={address}
                 numberOfTeams={numberOfTeams}
                 numberOfMembers={numberOfMembers}
                 numberOfRounds={numberOfRounds}

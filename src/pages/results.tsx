@@ -154,7 +154,7 @@
 
 
 import { useLocation } from 'react-router-dom'; 
-import { quizData } from '../mock-data'; 
+// import { quizData } from '../mock-data'; 
 import { 
   Container, 
   Title, 
@@ -168,7 +168,7 @@ import {
  
 const Results = () => { 
   const location = useLocation(); 
-  const { scores } = location.state || {}; 
+  const { quizData, scores } = location.state || {}; 
  
   const getMedalEmoji = (index: number) => { 
     if (index === 0) { 
@@ -211,7 +211,7 @@ const Results = () => {
           <Stack align="center" gap="xs"> 
             <Text fz={60}>🏆</Text> 
             <Title order={1} fw={700}>Quiz Results</Title> 
-            <Text fz="xl" c="blue.2">{quizData.quizName}</Text> 
+            <Title order={2} c="blue.2">{quizData.quizName}</Title> 
           </Stack> 
         </Center> 
  
@@ -241,7 +241,7 @@ const Results = () => {
                   {scores?.[team.id] ?? 0} 
                 </Text> 
                 <Stack align="center" gap="xs"> 
-                  {team.members.map((member, memberIdx) => ( 
+                  {team.members.map((member: string, memberIdx: number) => ( 
                     <Text key={memberIdx} fz="sm"> 
                       {member} 
                     </Text> 

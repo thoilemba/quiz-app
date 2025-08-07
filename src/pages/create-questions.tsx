@@ -11,7 +11,7 @@ import { readFileAsBase64 } from "../utils";
 export default function CreateQuestions() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster, schoolName, address } = location.state || {};
 
     const [rounds, setRounds] = useState(() =>
         roundsConfig.map((round: any) => ({
@@ -49,8 +49,10 @@ export default function CreateQuestions() {
 
     const quizData = {
         quizName: quizName,
+        schoolName: schoolName,
+        address: address,
         numberOfTeams: numberOfTeams,
-        membersPerTeam: numberOfMembers,
+        numberOfMembers: numberOfMembers,
         numberOfRounds: numberOfRounds,
         quizMaster: quizMaster,
         teams: teams,
@@ -174,15 +176,27 @@ export default function CreateQuestions() {
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
                                                         value={question.correctOption}
+                                                        disabled={question.options.some((option: string) => option === '')}
                                                         onChange={(value) =>
                                                             handleQuestionChange(roundIndex, questionIndex, 'correctOption', value as string)
                                                         }
-                                                        data={[
-                                                            { value: 'Option A', label: 'Option A' },
-                                                            { value: 'Option B', label: 'Option B' },
-                                                            { value: 'Option C', label: 'Option C' },
-                                                            { value: 'Option D', label: 'Option D' }
-                                                        ]}
+                                                        // data={[
+                                                        //     { value: 'Option A', label: 'Option A' },
+                                                        //     { value: 'Option B', label: 'Option B' },
+                                                        //     { value: 'Option C', label: 'Option C' },
+                                                        //     { value: 'Option D', label: 'Option D' }
+                                                        // ]}
+                                                        data={question.options
+                                                            .filter((option: string, index: number, array: string[]) => {
+                                                                // Only include non-empty options and remove duplicates
+                                                                return option.trim() !== '' && 
+                                                                       array.indexOf(option) === index; // Keep only first occurrence of duplicate
+                                                            })
+                                                            .map((option: string) => ({
+                                                                value: option, // Pass the actual option text as value
+                                                                label: `${option}`
+                                                            }))
+                                                        }
                                                         styles={{
                                                             label: { fontSize: '14px', color: '#868e96' }
                                                         }}
@@ -259,15 +273,27 @@ export default function CreateQuestions() {
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
                                                         value={question.correctOption}
+                                                        disabled={question.options.some((option: string) => option === '')}
                                                         onChange={(value) =>
                                                             handleQuestionChange(roundIndex, questionIndex, 'correctOption', value as string)
                                                         }
-                                                        data={[
-                                                            { value: 'Option A', label: 'Option A' },
-                                                            { value: 'Option B', label: 'Option B' },
-                                                            { value: 'Option C', label: 'Option C' },
-                                                            { value: 'Option D', label: 'Option D' }
-                                                        ]}
+                                                        // data={[
+                                                        //     { value: 'Option A', label: 'Option A' },
+                                                        //     { value: 'Option B', label: 'Option B' },
+                                                        //     { value: 'Option C', label: 'Option C' },
+                                                        //     { value: 'Option D', label: 'Option D' }
+                                                        // ]}
+                                                        data={question.options
+                                                            .filter((option: string, index: number, array: string[]) => {
+                                                                // Only include non-empty options and remove duplicates
+                                                                return option.trim() !== '' && 
+                                                                       array.indexOf(option) === index; // Keep only first occurrence of duplicate
+                                                            })
+                                                            .map((option: string) => ({
+                                                                value: option, // Pass the actual option text as value
+                                                                label: `${option}`
+                                                            }))
+                                                        }
                                                         styles={{
                                                             label: { fontSize: '14px', color: '#868e96' }
                                                         }}

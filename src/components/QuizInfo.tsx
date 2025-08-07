@@ -1,13 +1,21 @@
 import { Group, Stack, Text } from "@mantine/core";
-import { Trophy, Users, User, Hash, ClipboardPenLine } from "lucide-react";
+import { Trophy, Users, User, Hash, ClipboardPenLine, School, MapPin } from "lucide-react";
 
-export default function QuizInfo({ quizName, numberOfTeams, numberOfMembers, numberOfRounds, quizMaster }: { quizName: string, numberOfTeams: number, numberOfMembers: number, numberOfRounds: number, quizMaster: string }) {
+export default function QuizInfo({ quizName, numberOfTeams, numberOfMembers, numberOfRounds, quizMaster, schoolName, address }: { quizName: string, numberOfTeams: number, numberOfMembers: number, numberOfRounds: number, quizMaster: string, schoolName: string, address: string }) {
     return (
         <Group justify="center" mb="md">
             <Stack gap="xs">
                 <Group>
                     <Trophy size={16} color="blue" />
                     <Text>Quiz Name: <span style={{ fontWeight: 'bold' }}>{quizName}</span></Text>
+                </Group>
+                <Group>
+                    <School size={16} color="blue" />
+                    <Text>School Name: <span style={{ fontWeight: 'bold' }}>{schoolName}</span></Text>
+                </Group>
+                <Group>
+                    <MapPin size={16} color="blue" />
+                    <Text>Address: <span style={{ fontWeight: 'bold' }}>{address}</span></Text>
                 </Group>
                 <Group>
                     <Users size={16} color="green" />

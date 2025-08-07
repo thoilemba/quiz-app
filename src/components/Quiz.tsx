@@ -1,28 +1,9 @@
 import { useEffect, useState } from "react";
-import { quizData, roundsData } from "../mock-data";
-import { Check, Pause, Play, SkipForward, X } from "lucide-react";
-import { getRoundIcon } from "./RoundIcon";
-import { useNavigate } from "react-router-dom";
-import type { Question } from "../types";
+// import { quizData } from "../mock-data";
+import { Check, SkipForward, X } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
 
-// Type for rounds data
-// interface Round {
-//   id: number;
-//   name: string;
-//   type: 'normal' | 'audio_visual' | 'rapid_fire';
-//   timeLimit: number;
-//   points: {
-//     correct: number;
-//     wrong: number;
-//     bonus: number;
-//     pass: number;
-//   };
-//   questions: Question[];
-// }
-
-// // Type assertion for roundsData
-// const typedRoundsData = roundsData as unknown as Round[];
 
 type Scores = {
   [key: string]: number;  // or [key: number]: number if team IDs are numbers
@@ -38,21 +19,21 @@ import {
   Group,
   Stack,
   Paper,
-  TextInput,
   Box,
   Badge,
   Center,
   Flex,
   Divider,
   SimpleGrid,
-  Space,
-  Alert,
-  Image
-} from '@mantine/core';
+  Space} from '@mantine/core';
 import { getQuestionTypeColor } from "./QuestionTypeColor";
 import { getQuestionTypeIcon } from "./QuestionTypeIcon";
 
 function Quiz() {
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { quizData } = location.state || {};
 
   const [currentRound, setCurrentRound] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -64,8 +45,8 @@ function Quiz() {
   const [questionStartTime, setQuestionStartTime] = useState(0);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
-  const [quiz,] = useState(quizData);
-  // const rounds = typedRoundsData;
+  // const [quiz,] = useState(quizData); // quiz data from mock-data
+  const quiz = quizData;
   const rounds = quiz.roundsData;
   const currentRoundData = rounds[currentRound];
   const currentQuestionData = currentRoundData.questions[currentQuestion];
@@ -77,9 +58,10 @@ function Quiz() {
   const [hasPassed, setHasPassed] = useState(false);
   const allTeamsTried = passCount >= quiz.teams.length - 1;
 
-  const [scores, setScores] = useState<Scores>(quiz.teams.reduce((acc, team) => ({ ...acc, [team.id]: 0 }), {}));
+  const [scores, setScores] = useState<Scores>(quiz.teams.reduce((acc: any, team: any) => ({ ...acc, [team.id]: 0 }), {}));
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const [showRapidFireAnswer, setShowRapidFireAnswer] = useState(false);
+  const [isRapidFireAnswered, setIsRapidFireAnswered] = useState(false);
 
 
   const startQuiz = () => {
@@ -130,6 +112,7 @@ function Quiz() {
 
   const nextQuestion = () => {
     setPassCount(0);
+    setIsRapidFireAnswered(false); // Reset rapid fire answer state
 
     if (!hasPassed) {
       setCurrentTeamIndex((prev) => (prev + 1) % quiz.teams.length);
@@ -145,8 +128,6 @@ function Quiz() {
     }
   };
 
-  const navigate = useNavigate();
-
   const nextRound = () => {
     // setCurrentTeamIndex((prev) => (prev + 1) % quiz.teams.length);
     if (currentRound < rounds.length - 1) {
@@ -154,7 +135,7 @@ function Quiz() {
       setCurrentQuestion(0);
       startTimer();
     } else {
-      navigate('/results', { state: { scores } });
+      navigate('/results', { state: { quizData, scores } });
     }
   };
 
@@ -244,6 +225,7 @@ function Quiz() {
   };
 
   const markCorrect = () => {
+    playCorrectSound();
     let points = 10;
 
     if (passCount == 1) {
@@ -263,6 +245,7 @@ function Quiz() {
   };
 
   const markWrong = () => {
+    playWrongSound();
     setScores(prev => ({
       ...prev,
       [currentTeam.id]: prev[currentTeam.id] - 5
@@ -291,6 +274,15 @@ function Quiz() {
   // console.log("passCount:", passCount);
   // console.log("currentTeamIndex:", currentTeamIndex);
 
+  // Or you can create them inline
+  const playCorrectSound = () => {
+      new Audio('/sounds/correct.wav').play();
+  };
+
+  const playWrongSound = () => {
+    new Audio('/sounds/wrong.wav').play();
+  };
+
   return (
     <Box
       style={{
@@ -316,9 +308,9 @@ function Quiz() {
         <Flex justify="space-between" align="flex-start">
           <Box>
             <Title order={2} size="1.5rem">
-              Quiz Name: {quiz.quizName}
+              {quiz.quizName}
             </Title>
-            <Text size="md" style={{ color: '#93c5fd' }}>
+            <Text size="lg" style={{ color: '#93c5fd' }}>
               Quiz Master: {quiz.quizMaster}
             </Text>
           </Box>
@@ -432,7 +424,7 @@ function Quiz() {
                 // border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <Stack align="center" mb="lg">
+              <Stack align="center" mb="sm">
                 {currentRoundData.questionType === 'audio-visual' && 'media' in currentQuestionData && currentQuestionData.media && (
                   <Box>
                     {/* Image Preview */}
@@ -460,7 +452,7 @@ function Quiz() {
 
               {/* Options */}
               {currentRoundData.questionType === 'rapid-fire' ? (
-                <Box style={{ maxWidth: '28rem', margin: '0 auto' }}>
+                <Container style={{ margin: '0 auto' }}>
                   {/* <TextInput
                     size="lg"
                     value={rapidFireAnswer}
@@ -478,25 +470,73 @@ function Quiz() {
                       },
                     }}
                   /> */}
-
+                  {/* 
                   {showRapidFireAnswer && (
-                    <Text size="xl" fw={700} ta="center" c="green">
-                      {currentQuestionData.correctAnswer}
-                    </Text>
-                  )}
-
+                    <Box>
+                      <Text size="xl" fw={700} ta="center" c="green">
+                        {currentQuestionData.correctAnswer}
+                      </Text>
+                      <Group gap="md" justify="center">
+                        <Button color="green">
+                          Correct
+                        </Button>
+                        <Button color="red">
+                          Wrong
+                        </Button>
+                      </Group>
+                    </Box>
+                  )} */}
 
                   {showRapidFireAnswer ? (
                     <Center>
-                      <Button
-                        onClick={nextQuestion}
-                        color="violet"
-                        size="lg"
-                        fw={700}
-                        mt="md"
-                      >
-                        {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
-                      </Button>
+                      <Box>
+                        <Text size="2rem" fw={700} ta="center" c="green">
+                          {currentQuestionData.correctAnswer}
+                        </Text>
+                        <Group gap="md" justify="center" mt="md">
+                          <Button
+                            color="green"
+                            disabled={isRapidFireAnswered}
+                            onClick={() => {
+                              showToast('Correct!', 'success');
+                              playCorrectSound();
+                              setScores(prev => ({
+                                ...prev,
+                                [currentTeam.id]: prev[currentTeam.id] + 10
+                              }));
+                              setIsRapidFireAnswered(true);
+                            }}
+                          >
+                            ✓ Correct (+10)
+                          </Button>
+                          <Button
+                            color="red"
+                            disabled={isRapidFireAnswered}
+                            onClick={() => {
+                              showToast('Wrong!', 'error');
+                              playWrongSound();
+                              setScores(prev => ({
+                                ...prev,
+                                [currentTeam.id]: prev[currentTeam.id] - 5
+                              }));
+                              setIsRapidFireAnswered(true);
+                            }}
+                          >
+                            ✗ Wrong (-5)
+                          </Button>
+                        </Group>
+                        <Button
+                          disabled={!isRapidFireAnswered}
+                          onClick={nextQuestion}
+                          color="violet"
+                          size="lg"
+                          fw={700}
+                          mt="md"
+                          w="100%"
+                        >
+                          {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
+                        </Button>
+                      </Box>
                     </Center>
                   ) :
                     <Center>
@@ -510,14 +550,14 @@ function Quiz() {
                         Reveal Answer
                       </Button>
                     </Center>}
-                </Box>
+                </Container>
               ) : (
                 <SimpleGrid
                   cols={{ base: 1, md: 2 }}
                   spacing="md"
                 // style={{ maxWidth: '64rem', margin: '0 auto' }}
                 >
-                  {"options" in currentQuestionData && currentQuestionData.options?.map((option, idx) => (
+                  {"options" in currentQuestionData && currentQuestionData.options?.map((option: string, idx: number) => (
                     <Button
                       key={idx}
                       fullWidth
@@ -686,7 +726,7 @@ function Quiz() {
             <Text size="lg">Gamma: 30</Text>
             <Text size="lg">Delta: 40</Text> */}
 
-            {quiz.teams.map((team) => (
+            {quiz.teams.map((team: any) => (
               <Text size="lg" key={team.id}>
                 {team.name}: {scores[team.id]}
               </Text>

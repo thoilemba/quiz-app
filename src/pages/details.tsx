@@ -325,11 +325,11 @@
 // export default Details;
 
 import { Container, Title, Text, Group, Card, SimpleGrid, Button, Center, Stack } from '@mantine/core';
-import { Play } from 'lucide-react';
+import { MapPin, Play, School, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getQuestionTypeIcon } from '../components/QuestionTypeIcon';
 import { getQuestionTypeColor } from '../components/QuestionTypeColor';
-// import { quizData } from '../mock-data'; // use this mock data change the size of the data
+// import { quizData } from '../mock-data'; // use this mock data for quick testing
 
 const Details = () => {
 
@@ -337,14 +337,6 @@ const Details = () => {
   const location = useLocation();
   const { quizData } = location.state || {};
   console.log(quizData);
-
-  // const dummyData = {
-  //   eventName: 'Annual Inter-School Quiz Competition',
-  //   schoolName: 'St. Mary\'s High School',
-  //   schoolLogo: '🏫',
-  //   date: '2025-07-15',
-  //   venue: 'Main Auditorium',
-  // }
 
   return (
     <div style={{
@@ -357,15 +349,20 @@ const Details = () => {
       <Container size="lg" py="lg">
         {/* Header */}
         <Stack align="center" gap={4} mb="lg">
-          {/* <Title order={1}>{dummyData.schoolLogo}</Title>
-          <Title order={2}>{dummyData.eventName}</Title>
-          <Title order={3}>{dummyData.schoolName}</Title>
+          <Title order={1} c="blue">{quizData.quizName}</Title>
           <Group>
-            <Text fw={500}>📅 {dummyData.date}</Text>
-            <Text fw={500}>📍 {dummyData.venue}</Text>
-          </Group> */}
-          <Title order={3} ta="center" mb="md">{quizData.quizName}</Title>
-          <Text fw={500} ta="center">Quiz Master: {quizData.quizMaster}</Text>
+            <School size={20} color="green" />
+            <Title order={2}>{quizData.schoolName}</Title>
+          </Group>
+          <Group>
+            <MapPin size={20} color="red" />
+            <Text fw={500} size="lg">{quizData.address}</Text>
+            </Group>
+            <Text fw={500} size="lg">📅 {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</Text>
+          <Group>
+          <User size={20} color="violet" />
+          <Text ta="center" size="lg">Quiz Master: <span style={{ fontWeight: 'bold' }}>{quizData.quizMaster}</span></Text>
+          </Group>
         </Stack>
 
         {/* Teams */}
@@ -402,7 +399,7 @@ const Details = () => {
         {/* Start Button */}
         <Center mt="lg">
           <Button
-            onClick={() => navigate('/quiz')}
+            onClick={() => navigate('/quiz-start', { state: { quizData } })}
             variant="gradient"
             gradient={{ from: 'green', to: 'blue' }}
             size="xl"

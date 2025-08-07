@@ -70,7 +70,6 @@ const QuizHomePage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleCreateQuiz = () => {
-        console.log('Create new quiz clicked');
         navigate('/create-quiz');
     };
 

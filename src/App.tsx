@@ -27,7 +27,7 @@ function App() {
         <Route path="/create-rounds" element={<CreateRounds />} />
         <Route path="/create-questions" element={<CreateQuestions />} />
         <Route path="/quiz-detail" element={<Details />} />
-        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/quiz-start" element={<Quiz />} />
         {/* <Route path="/quiz" element={<QuizStart />} /> */}
         <Route path="/results" element={<Results />} />
       </Routes>

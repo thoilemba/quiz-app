@@ -15,9 +15,11 @@ import { useNavigate } from 'react-router-dom';
 export default function CreateQuiz() {
     const navigate = useNavigate();
     const [quizName, setQuizName] = useState('Testing');
-    const [numberOfTeams, setNumberOfTeams] = useState(2);
-    const [numberOfRounds, setNumberOfRounds] = useState(3);
+    const [numberOfTeams, setNumberOfTeams] = useState(4);
     const [numberOfMembers, setNumberOfMembers] = useState(4);
+    const [numberOfRounds, setNumberOfRounds] = useState(3);
+    const [schoolName, setSchoolName] = useState('');
+    const [address, setAddress] = useState('');
     const [quizMaster, setQuizMaster] = useState('');
 
     const teamOptions = [
@@ -52,6 +54,8 @@ export default function CreateQuiz() {
             numberOfTeams,
             numberOfMembers,
             numberOfRounds,
+            schoolName,
+            address,
             quizMaster
         });
         // Add your save logic here
@@ -61,6 +65,8 @@ export default function CreateQuiz() {
                 numberOfTeams,
                 numberOfMembers,
                 numberOfRounds,
+                schoolName,
+                address,
                 quizMaster
             }
         });
@@ -92,6 +98,24 @@ export default function CreateQuiz() {
                             required
                             value={quizName}
                             onChange={(event) => setQuizName(event.currentTarget.value)}
+                            size="md"
+                        />
+
+                        <TextInput
+                            label="School Name"
+                            placeholder="School Name"
+                            required
+                            value={schoolName}
+                            onChange={(event) => setSchoolName(event.currentTarget.value)}
+                            size="md"
+                        />
+
+                        <TextInput
+                            label="Address"
+                            placeholder="Address"
+                            required
+                            value={address}
+                            onChange={(event) => setAddress(event.currentTarget.value)}
                             size="md"
                         />
 
@@ -131,7 +155,7 @@ export default function CreateQuiz() {
                             size="md"
                         />
 
-                        <Stack gap="md" mt="xl">
+                        <Stack gap="md">
                             <Button
                                 // onClick={handleSaveAndContinue}
                                 size="md"
