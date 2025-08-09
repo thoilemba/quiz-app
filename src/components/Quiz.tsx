@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 // import { quizData } from "../mock-data";
 import { Check, SkipForward, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../App.css"; 
+import "../App.css";
 
 
 type Scores = {
@@ -25,9 +25,12 @@ import {
   Flex,
   Divider,
   SimpleGrid,
-  Space} from '@mantine/core';
+  Space,
+  Image
+} from '@mantine/core';
 import { getQuestionTypeColor } from "./QuestionTypeColor";
 import { getQuestionTypeIcon } from "./QuestionTypeIcon";
+import RoundDetail from "./RoundDetail";
 
 function Quiz() {
 
@@ -62,6 +65,8 @@ function Quiz() {
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
   const [showRapidFireAnswer, setShowRapidFireAnswer] = useState(false);
   const [isRapidFireAnswered, setIsRapidFireAnswered] = useState(false);
+
+  const [isRoundFinished, setIsRoundFinished] = useState(true);
 
 
   const startQuiz = () => {
@@ -133,6 +138,7 @@ function Quiz() {
     if (currentRound < rounds.length - 1) {
       setCurrentRound(prev => prev + 1);
       setCurrentQuestion(0);
+      setIsRoundFinished(true);
       startTimer();
     } else {
       navigate('/results', { state: { quizData, scores } });
@@ -171,12 +177,6 @@ function Quiz() {
       markWrong();
     }
   };
-
-  // const awardPointsToTeam = (teamId: any, isCorrect: any) => {
-  //   const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
-  //   const points = calculatePoints(isCorrect, timeTaken);
-  //   updateTeamScore(teamId, points);
-  // };
 
   // const updateTeamScore = (teamId: number, points: number) => {
   //   console.log(teamId, points);
@@ -221,7 +221,6 @@ function Quiz() {
       setPassCount((prev) => prev + 1);
       setCurrentTeamIndex((prevIndex) => (prevIndex + 1) % quiz.teams.length);
     }
-    // setHasPassed(false);
   };
 
   const markCorrect = () => {
@@ -241,7 +240,6 @@ function Quiz() {
       [currentTeam.id]: prev[currentTeam.id] + points
     }));
     showToast('Correct!', 'success');
-    // nextTeam();
   };
 
   const markWrong = () => {
@@ -251,7 +249,6 @@ function Quiz() {
       [currentTeam.id]: prev[currentTeam.id] - 5
     }));
     showToast('Wrong!', 'error');
-    // nextTeam();
   };
 
   const showToast = (message: string, type: string) => {
@@ -260,15 +257,6 @@ function Quiz() {
       setToast({ show: false, message: '', type: '' });
     }, 3000);
   };
-
-  // useEffect(() => {
-  //   if (toast.show) {
-  //     const timer = setTimeout(() => {
-  //       setToast({ show: false, message: '', type: '' });
-  //     }, 2000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [toast.show]);
 
   // console.log("hasPassed:", hasPassed);
   // console.log("passCount:", passCount);
@@ -289,12 +277,17 @@ function Quiz() {
     const audio = new Audio(soundPath);
     audio.play();
   };
-  
+
   // For desktop app
   const playWrongSound = async () => {
     const soundPath = await window.electronAPI.playWrongSound();
     const audio = new Audio(soundPath);
     audio.play();
+  };
+
+  const isLastQuestion = () => {
+    const currentRoundData = rounds[currentRound];
+    return currentQuestion === currentRoundData.questions.length - 1;
   };
 
   return (
@@ -306,14 +299,23 @@ function Quiz() {
       }}
     >
       <Center>
-        <Stack
-          style={{ paddingTop: '1rem', marginBottom: '1rem', textAlign: 'center', gap: 0 }}
-        >
-          <Title order={2}>
-            PARI IMOM KHWAI SHINDAM SHANG
-          </Title>
-          <Text size="lg">Pangei, Imphal East</Text>
-        </Stack>
+        <Group>
+          {quiz.schoolLogo && (
+            <Image
+              src={quiz.schoolLogo}
+              w={60}
+              h={60}
+              fit="contain"
+            // style={{ borderRadius: '50%' }}
+            />
+          )}
+          <Stack style={{ paddingTop: '1rem', marginBottom: '1rem', textAlign: 'center', gap: 0 }}>
+            <Title order={2}>
+              {quiz.schoolName}
+            </Title>
+            <Text size="lg">{quiz.address}</Text>
+          </Stack>
+        </Group>
       </Center>
       <Divider />
 
@@ -329,28 +331,30 @@ function Quiz() {
             </Text>
           </Box>
 
-          <Box style={{ textAlign: 'right' }}>
-            <Text size="lg" fw={600}>
-              Round {currentRound + 1}: {currentRoundData.roundName}
-            </Text>
-            <Group gap="xs" justify="center">
-              {/* {getQuestionTypeIcon(currentRoundData.questionType)} */}
-              <Badge
-                variant="outline"
-                color={getQuestionTypeColor(currentRoundData.questionType)}
-                size="sm"
-                style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-              >
-                <Flex gap="xs">
-                  {getQuestionTypeIcon(currentRoundData.questionType)}{currentRoundData.questionType}
-                </Flex>
-              </Badge>
-              <Text size="sm" style={{ color: '#d1d5db' }}>
-                Question {currentQuestion + 1} of {currentRoundData.questions.length}
+          {!isRoundFinished && (
+            <Box style={{ textAlign: 'right' }}>
+              <Text size="lg" fw={600}>
+                Round {currentRound + 1}: {currentRoundData.roundName}
               </Text>
-            </Group>
+              <Group gap="xs" justify="center">
+                {/* {getQuestionTypeIcon(currentRoundData.questionType)} */}
+                <Badge
+                  variant="outline"
+                  color={getQuestionTypeColor(currentRoundData.questionType)}
+                  size="sm"
+                  style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                >
+                  <Flex gap="xs">
+                    {getQuestionTypeIcon(currentRoundData.questionType)}{currentRoundData.questionType}
+                  </Flex>
+                </Badge>
+                <Text size="sm" style={{ color: '#d1d5db' }}>
+                  Question {currentQuestion + 1} of {currentRoundData.questions.length}
+                </Text>
+              </Group>
 
-          </Box>
+            </Box>
+          )}
         </Flex>
 
         {/* Timer */}
@@ -373,40 +377,8 @@ function Quiz() {
               >
                 {isTimerRunning ? 'Pause' : 'Resume'}
               </Button>
-              {currentRoundData.type !== 'rapid_fire' && (
-                <Button
-                  onClick={() => {
-                    const currentRoundData = rounds[currentRound];
-                    if (currentRoundData.type !== 'rapid_fire') {
-                      nextQuestion();
-                    }
-                  }}
-                  color="gray"
-                  leftSection={<SkipForward size={16} />}
-                >
-                  Pass
-                </Button>
-              )}
             </Group>
           </Stack> */}
-
-        {/* {toast.show && (
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate">
-          <div className={`px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 ${
-            toast.type === 'success' 
-              ? 'bg-green-500 text-white' 
-              : 'bg-red-500 text-white'
-          }`}>
-            {toast.type === 'success' ? (
-              <Check className="w-6 h-6" />
-            ) : (
-              <X className="w-6 h-6" />
-            )}
-            <span className="font-semibold text-lg">{toast.message}</span>
-          </div>
-        </div>
-      )} */}
-
 
         {toast.show && (
           <div className="toast-container animate">
@@ -421,13 +393,14 @@ function Quiz() {
           </div>
         )}
 
-        <Title order={2} c="yellow" fw={700} ta="center">
-          Question To: {currentTeam.name} {hasPassed ? '(Passed)' : ''}
-        </Title>
-        <Space h="md" />
-        <Flex>
-          <Box style={{ flex: 3, }}>
-            {/* Question */}
+        {isRoundFinished ? (
+          <RoundDetail round={currentRoundData} onContinue={() => setIsRoundFinished(false)} />
+        ) : (
+          <Box>
+            <Title order={2} c="yellow" fw={700} ta="center">
+              Question To: {currentTeam.name} {hasPassed ? '(Passed)' : ''}
+            </Title>
+            <Space h="md" />
             <Paper
               p="lg"
               mb="xl"
@@ -467,40 +440,6 @@ function Quiz() {
               {/* Options */}
               {currentRoundData.questionType === 'rapid-fire' ? (
                 <Container style={{ margin: '0 auto' }}>
-                  {/* <TextInput
-                    size="lg"
-                    value={rapidFireAnswer}
-                    onChange={(e) => setRapidFireAnswer(e.target.value)}
-                    placeholder="Type your answer..."
-                    disabled={showAnswer}
-                    styles={{
-                      input: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        color: 'white',
-                        '&::placeholder': {
-                          color: '#d1d5db',
-                        },
-                      },
-                    }}
-                  /> */}
-                  {/* 
-                  {showRapidFireAnswer && (
-                    <Box>
-                      <Text size="xl" fw={700} ta="center" c="green">
-                        {currentQuestionData.correctAnswer}
-                      </Text>
-                      <Group gap="md" justify="center">
-                        <Button color="green">
-                          Correct
-                        </Button>
-                        <Button color="red">
-                          Wrong
-                        </Button>
-                      </Group>
-                    </Box>
-                  )} */}
-
                   {showRapidFireAnswer ? (
                     <Center>
                       <Box>
@@ -643,16 +582,6 @@ function Quiz() {
                       size="lg"
                       fw={700}
                       disabled={allTeamsTried}
-                      // onClick={() => {
-                      //   if(!allTeamsTried){
-                      //     setPassCount((prev) => prev + 1);
-                      //     setCurrentTeamIndex((prevIndex) => (prevIndex + 1) % quiz.teams.length);
-                      //   }
-                      //   // const currentRoundData = rounds[currentRound];
-                      //   // if (currentRoundData.type !== 'rapid_fire') {
-                      //   //   nextQuestion();
-                      //   // }
-                      // }}
                       onClick={handlePass}
                       color="green"
                       leftSection={<SkipForward size={16} />}
@@ -665,24 +594,7 @@ function Quiz() {
 
               {/* Answer Revealed */}
               {showAnswer && (
-                // <Paper
-                //   mt=""
-                //   p="md"
-                //   radius="lg"
-                //   style={{
-                //     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                //   }}
-                // >
                 <Group justify="center">
-                  {/* <Title order={3} size="1.125rem" fw={700} style={{ color: '#4ade80' }}>
-                      Correct Answer: &nbsp;
-                      {currentRoundData.questionType === 'rapid-fire'
-                        ? String(currentQuestionData.correct)
-                        : currentQuestionData.options && typeof currentQuestionData.correct === 'number'
-                          ? `${String.fromCharCode(65 + currentQuestionData.correct)}. ${currentQuestionData.options[currentQuestionData.correct]}`
-                          : 'No answer available'
-                      }
-                    </Title> */}
                   <Button
                     onClick={nextQuestion}
                     color="violet"
@@ -692,34 +604,11 @@ function Quiz() {
                     {currentQuestion < currentRoundData.questions.length - 1 ? 'Next Question' : 'Next Round'}
                   </Button>
                 </Group>
-                // </Paper>
               )}
             </Paper>
           </Box>
-          <Space w="md" />
-          {/* Team Scores */}
-          {/* <Paper
-              p="md"
-              mb="xl"
-              radius="xl"
-              style={{
-                flex: 1,
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(12px)',
-                // border: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
-            >
-                <Title order={4} fw={700} ta="center">
-                  Team Scores
-                </Title>
-                <Stack gap="xs" justify="center" align="center">
-                  <Text>Alpha: 10</Text>
-                  <Text>Beta: 20</Text>
-                  <Text>Gamma: 30</Text>
-                  <Text>Delta: 40</Text>
-                </Stack>
-          </Paper> */}
-        </Flex>
+        )}
+        {/* Team Scores */}
         <Paper
           p="md"
           mb="xl"
@@ -735,11 +624,6 @@ function Quiz() {
             Team Scores
           </Title>
           <Group gap="lg" justify="center" mt="md">
-            {/* <Text size="lg">Alpha: 10</Text>
-            <Text size="lg">Beta: 20</Text>
-            <Text size="lg">Gamma: 30</Text>
-            <Text size="lg">Delta: 40</Text> */}
-
             {quiz.teams.map((team: any) => (
               <Text size="lg" key={team.id}>
                 {team.name}: {scores[team.id]}

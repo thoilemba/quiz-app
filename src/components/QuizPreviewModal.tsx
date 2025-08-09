@@ -226,6 +226,7 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
                     numberOfMembers={quizData.numberOfMembers}
                     numberOfRounds={quizData.numberOfRounds}
                     quizMaster={quizData.quizMaster}
+                    schoolLogo={quizData.schoolLogo}
                 />
                 {/* <Stack justify="center" gap="xs">
                     <Title order={3} ta="center" c="blue">Quiz Master</Title>

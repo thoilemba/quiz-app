@@ -8,9 +8,15 @@ import {
     Stack,
     Group,
     Box,
-    Paper
+    Paper,
+    FileButton,
+    ActionIcon,
+    Image,
+    Center,
+    Text
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import { Upload, X } from 'lucide-react';
 
 export default function CreateQuiz() {
     const navigate = useNavigate();
@@ -21,6 +27,7 @@ export default function CreateQuiz() {
     const [schoolName, setSchoolName] = useState('');
     const [address, setAddress] = useState('');
     const [quizMaster, setQuizMaster] = useState('');
+    const [logo, setLogo] = useState<string | null>(null);
 
     const teamOptions = [
         { value: '2', label: '2 (Two)' },
@@ -67,7 +74,8 @@ export default function CreateQuiz() {
                 numberOfRounds,
                 schoolName,
                 address,
-                quizMaster
+                quizMaster,
+                logo
             }
         });
     };
@@ -76,6 +84,20 @@ export default function CreateQuiz() {
     //     console.log('Cancelled');
     //     // Add your cancel logic here
     // };
+
+    const handleFileUpload = (file: File | null) => {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setLogo(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeLogo = () => {
+        setLogo(null);
+    };
 
     return (
         <Container size="sm" py="xl">
@@ -92,6 +114,103 @@ export default function CreateQuiz() {
 
                 <form onSubmit={handleSaveAndContinue}>
                     <Stack>
+                        <Text ta="center" fw={600}>Upload School Logo (Optional)</Text>
+                        <Center>
+                            {/* <Box w={150} h={150} style={{ position: "relative" }}>
+                                {logo ? (
+                                    <>
+                                        <Image
+                                            src={logo}
+                                            alt="Uploaded Logo"
+                                            radius="md"
+                                            w="100%"
+                                            h="100%"
+                                            fit="contain"
+                                        />
+                                        <ActionIcon
+                                            color="red"
+                                            variant="filled"
+                                            radius="xl"
+                                            size="sm"
+                                            onClick={removeLogo}
+                                            style={{
+                                                position: "absolute",
+                                                top: 4,
+                                                right: 4,
+                                                zIndex: 2,
+                                            }}
+                                        >
+                                            <X size={14} />
+                                        </ActionIcon>
+                                    </>
+                                ) : (
+                                    <Group
+                                        w="100%"
+                                        h="100%"
+                                        style={{
+                                            border: "1px dashed #ccc",
+                                            borderRadius: "8px",
+                                        }}
+                                        justify="center"
+                                        align="center"
+                                    >
+                                        <FileButton onChange={handleFileUpload} accept="image/*">
+                                            {(props) => (
+                                                <Button {...props} variant="light" size="xs">
+                                                    Upload Logo
+                                                </Button>
+                                            )}
+                                        </FileButton>
+                                    </Group>
+                                )}
+                            </Box> */}
+                            <Box w={150} h={150} style={{ position: "relative" }}>
+                                {logo ? (
+                                    <>
+                                        <Image
+                                            src={logo}
+                                            alt="Uploaded Logo"
+                                            radius="md"
+                                            w="100%"
+                                            h="100%"
+                                            fit="contain"
+                                        />
+                                        <ActionIcon
+                                            color="red"
+                                            variant="filled"
+                                            radius="xl"
+                                            size="sm"
+                                            onClick={removeLogo}
+                                            style={{
+                                                position: "absolute",
+                                                top: 4,
+                                                right: 4,
+                                                zIndex: 2,
+                                            }}
+                                        >
+                                            <X size={14} />
+                                        </ActionIcon>
+                                    </>
+                                ) : (
+                                    <FileButton onChange={handleFileUpload} accept="image/*">
+                                        {(props) => (
+                                            <Center
+                                                {...props}
+                                                style={{
+                                                    border: "1px dashed #ccc",
+                                                    borderRadius: "8px",
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                <Upload size="2rem" strokeWidth={1.5} />
+                                            </Center>
+                                        )}
+                                    </FileButton>
+                                )}
+                            </Box>
+                        </Center>
                         <TextInput
                             label="Quiz Name"
                             placeholder="Quiz Name"

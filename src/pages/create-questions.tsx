@@ -11,7 +11,7 @@ import { readFileAsBase64 } from "../utils";
 export default function CreateQuestions() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster, schoolName, address } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster, schoolName, address, logo } = location.state || {};
 
     const [rounds, setRounds] = useState(() =>
         roundsConfig.map((round: any) => ({
@@ -22,7 +22,7 @@ export default function CreateQuestions() {
                         return {
                             statement: '',
                             options: ['', '', '', ''],
-                            correctOption: 'Option A'
+                            correctAnswer: 'Option A'
                         };
                     case 'audio-visual':
                         return {
@@ -33,7 +33,7 @@ export default function CreateQuestions() {
                                 data: ''          // ✅ base64 string
                             },
                             options: ['', '', '', ''],
-                            correctOption: 'Option A'
+                            correctAnswer: 'Option A'
                         };
                     case 'rapid-fire':
                         return {
@@ -51,6 +51,7 @@ export default function CreateQuestions() {
         quizName: quizName,
         schoolName: schoolName,
         address: address,
+        schoolLogo: logo,
         numberOfTeams: numberOfTeams,
         numberOfMembers: numberOfMembers,
         numberOfRounds: numberOfRounds,
@@ -175,10 +176,10 @@ export default function CreateQuestions() {
                                                     <Select
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
-                                                        value={question.correctOption}
+                                                        value={question.correctAnswer}
                                                         disabled={question.options.some((option: string) => option === '')}
                                                         onChange={(value) =>
-                                                            handleQuestionChange(roundIndex, questionIndex, 'correctOption', value as string)
+                                                            handleQuestionChange(roundIndex, questionIndex, 'correctAnswer', value as string)
                                                         }
                                                         // data={[
                                                         //     { value: 'Option A', label: 'Option A' },
@@ -272,10 +273,10 @@ export default function CreateQuestions() {
                                                     <Select
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
-                                                        value={question.correctOption}
+                                                        value={question.correctAnswer}
                                                         disabled={question.options.some((option: string) => option === '')}
                                                         onChange={(value) =>
-                                                            handleQuestionChange(roundIndex, questionIndex, 'correctOption', value as string)
+                                                            handleQuestionChange(roundIndex, questionIndex, 'correctAnswer', value as string)
                                                         }
                                                         // data={[
                                                         //     { value: 'Option A', label: 'Option A' },

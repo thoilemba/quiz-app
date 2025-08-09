@@ -446,7 +446,7 @@ import QuizInfo from "../components/QuizInfo";
 export default function CreateRounds() {
 
     const location = useLocation();
-    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, quizMaster, schoolName, address } = location.state || {};
+    const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, quizMaster, schoolName, address, logo } = location.state || {};
     const navigate = useNavigate();
 
     // Initialize rounds configuration
@@ -514,6 +514,7 @@ export default function CreateRounds() {
                 numberOfRounds,
                 teams,
                 quizMaster,
+                logo,
                 roundsConfig
             }
         });
@@ -614,6 +615,7 @@ export default function CreateRounds() {
                 numberOfMembers={numberOfMembers}
                 numberOfRounds={numberOfRounds}
                 quizMaster={quizMaster}
+                schoolLogo={logo}
             />
 
             <Stack gap="lg">

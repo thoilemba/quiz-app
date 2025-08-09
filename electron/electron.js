@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
@@ -23,6 +23,41 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
+
+  const template = [
+    {
+      label: 'Navigation',
+      submenu: [
+        {
+          label: 'Back',
+          // accelerator: 'Alt+Left', // Keyboard shortcut
+          click: (menuItem, browserWindow) => {
+            if (browserWindow && browserWindow.webContents.navigationHistory.canGoBack()) {
+              browserWindow.webContents.navigationHistory.goBack();
+            }
+          }
+        }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
   createWindow();
 
   ipcMain.handle('save-quiz-json', async (event, quizData) => {

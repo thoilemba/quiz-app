@@ -324,7 +324,7 @@
 
 // export default Details;
 
-import { Container, Title, Text, Group, Card, SimpleGrid, Button, Center, Stack } from '@mantine/core';
+import { Container, Title, Text, Group, Card, SimpleGrid, Button, Center, Stack, Image } from '@mantine/core';
 import { MapPin, Play, School, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getQuestionTypeIcon } from '../components/QuestionTypeIcon';
@@ -351,17 +351,26 @@ const Details = () => {
         <Stack align="center" gap={4} mb="lg">
           <Title order={1} c="blue">{quizData.quizName}</Title>
           <Group>
-            <School size={20} color="green" />
+            {quizData.schoolLogo ? (
+              <Image
+                src={quizData.schoolLogo}
+                w={50}
+                h={50}
+                fit="contain"
+              // style={{ borderRadius: '50%' }}
+              />
+            ) : <School size={20} color="green" />}
+
             <Title order={2}>{quizData.schoolName}</Title>
           </Group>
           <Group>
             <MapPin size={20} color="red" />
             <Text fw={500} size="lg">{quizData.address}</Text>
-            </Group>
-            <Text fw={500} size="lg">📅 {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</Text>
+          </Group>
+          <Text fw={500} size="lg">📅 {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</Text>
           <Group>
-          <User size={20} color="violet" />
-          <Text ta="center" size="lg">Quiz Master: <span style={{ fontWeight: 'bold' }}>{quizData.quizMaster}</span></Text>
+            <User size={20} color="violet" />
+            <Text ta="center" size="lg">Quiz Master: <span style={{ fontWeight: 'bold' }}>{quizData.quizMaster}</span></Text>
           </Group>
         </Stack>
 
