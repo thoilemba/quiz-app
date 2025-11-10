@@ -67,6 +67,7 @@ function Quiz() {
   const [isRapidFireAnswered, setIsRapidFireAnswered] = useState(false);
 
   const [isRoundFinished, setIsRoundFinished] = useState(true);
+  const [countdown, setCountdown] = useState(5);
 
 
   const startQuiz = () => {
@@ -75,10 +76,31 @@ function Quiz() {
     startTimer();
   };
 
-
   useEffect(() => {
     startQuiz();
   }, []);
+
+
+  // Countdown effect for rapid-fire round
+  useEffect(() => {
+    if (isRoundFinished || rounds[currentRound]?.questionType !== 'rapid-fire') return;
+    
+    // Reset countdown when question changes
+    setCountdown(5);
+    
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [currentQuestion, isRoundFinished]);
+  
 
   // Timer effect
   // useEffect(() => {
@@ -244,10 +266,11 @@ function Quiz() {
 
   const markWrong = () => {
     playWrongSound();
-    setScores(prev => ({
-      ...prev,
-      [currentTeam.id]: prev[currentTeam.id] - 5
-    }));
+    // for now, there is no negative marking
+    // setScores(prev => ({
+    //   ...prev,
+    //   [currentTeam.id]: prev[currentTeam.id] - 5
+    // }));
     showToast('Wrong!', 'error');
   };
 
@@ -330,6 +353,21 @@ function Quiz() {
               Quiz Master: {quiz.quizMaster}
             </Text>
           </Box>
+
+          {!isRoundFinished && rounds[currentRound].questionType === 'rapid-fire' && (
+            <Title 
+              fw={600} 
+              // c={countdown <= 3 ? 'red' : 'yellow'}
+              c="red"
+              style={{
+                animation: countdown <= 3 ? 'pulse 0.5s infinite' : 'none',
+                minWidth: '40px',
+                textAlign: 'center'
+              }}
+            >
+              {countdown}
+            </Title>
+          )}
 
           {!isRoundFinished && (
             <Box style={{ textAlign: 'right' }}>
@@ -429,6 +467,15 @@ function Quiz() {
                         Your browser does not support the audio element.
                       </audio>
                     )}
+                    {/* Video Preview */}
+                    {currentQuestionData.media.type === 'video' && currentQuestionData.media.data && (
+                      <Box w={200}>
+                      <video controls>
+                        <source src={currentQuestionData.media.data} type="video/mp4" />
+                        Your browser does not support the video element.
+                      </video>
+                      </Box>
+                    )}
                   </Box>
                 )}
 
@@ -462,20 +509,22 @@ function Quiz() {
                           >
                             ✓ Correct (+10)
                           </Button>
+                          
                           <Button
                             color="red"
                             disabled={isRapidFireAnswered}
                             onClick={() => {
                               showToast('Wrong!', 'error');
                               playWrongSound();
-                              setScores(prev => ({
-                                ...prev,
-                                [currentTeam.id]: prev[currentTeam.id] - 5
-                              }));
+                              {/* For now, there is no negative marking */}
+                              // setScores(prev => ({
+                              //   ...prev,
+                              //   [currentTeam.id]: prev[currentTeam.id] - 5
+                              // }));
                               setIsRapidFireAnswered(true);
                             }}
                           >
-                            ✗ Wrong (-5)
+                            ✗ Wrong (0)
                           </Button>
                         </Group>
                         <Button

@@ -1,4 +1,4 @@
-import { Stack, Group, Badge, Title, Flex, Center, Paper, Button } from "@mantine/core";
+import { Stack, Group, Badge, Title, Flex, Center, Paper, Button, Text } from "@mantine/core";
 import { Play } from "lucide-react";
 import { getQuestionTypeColor } from "./QuestionTypeColor";
 import { getQuestionTypeIcon } from "./QuestionTypeIcon";
@@ -22,6 +22,9 @@ export default function RoundDetail({ round, onContinue }: { round: any, onConti
                     <Title ta="center">
                         Round {round.roundNumber}
                     </Title>
+                    {round.questionType === 'rapid-fire' && <Group gap="xs" justify="center">
+                        <Text size="lg">Time Limit: 5 seconds</Text>
+                    </Group>}
                     <Center>
                         <Badge
                             variant="outline"

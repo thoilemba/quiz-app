@@ -56,7 +56,7 @@ import QuizInfo from './QuizInfo';
 
 
 
-const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
+const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormValid: boolean }) => {
     const [opened, setOpened] = useState(false);
 
     // Sample data - replace with your actual rounds data
@@ -195,6 +195,7 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
                 variant="filled"
                 fullWidth
                 color="green"
+                disabled={!isFormValid}
             >
                 Preview & Save Quiz
             </Button>
@@ -337,6 +338,15 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
                                                                 Your browser does not support the audio element.
                                                             </audio>
                                                         )}
+                                                        {/* Video Preview */}
+                                                        {question.media.type === 'video' && question.media.data && (
+                                                            <Box w={200}>
+                                                            <video controls>
+                                                                <source src={question.media.data} type="video/mp4" />
+                                                                Your browser does not support the video element.
+                                                            </video>
+                                                            </Box>
+                                                        )}
                                                     </Alert>
                                                 )}
 
@@ -348,7 +358,7 @@ const QuizPreviewModal = ({ quizData }: { quizData: any }) => {
                                                             {question.options.map((option: any, optionIndex: any) => {
                                                                 const optionLetter = String.fromCharCode(65 + optionIndex);
                                                                 // const isCorrect = question.correctOption === `Option ${optionLetter}`;
-                                                                const isCorrect = question.correctOption === option;
+                                                                const isCorrect = question.correctAnswer === option;
                                                                 return (
                                                                     <Paper
                                                                         key={optionIndex}

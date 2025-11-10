@@ -22,7 +22,7 @@ export default function CreateQuestions() {
                         return {
                             statement: '',
                             options: ['', '', '', ''],
-                            correctAnswer: 'Option A'
+                            correctAnswer: ''
                         };
                     case 'audio-visual':
                         return {
@@ -33,7 +33,7 @@ export default function CreateQuestions() {
                                 data: ''          // ✅ base64 string
                             },
                             options: ['', '', '', ''],
-                            correctAnswer: 'Option A'
+                            correctAnswer: ''
                         };
                     case 'rapid-fire':
                         return {
@@ -101,6 +101,16 @@ export default function CreateQuestions() {
         }
 
         const file = value as File;
+        
+        // Check file size (10MB limit for videos)
+        const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 10MB in bytes
+        const round = rounds[roundIndex];
+        const isVideo = round.questions[questionIndex].media.type === 'video';
+        
+        if (isVideo && file.size > MAX_VIDEO_SIZE) {
+            alert('Video file size must be less than 50MB');
+            return;
+        }
         const base64 = await readFileAsBase64(file); // convert to base64
         setRounds((prevRounds: any) => {
             const newRounds = [...prevRounds];
@@ -113,6 +123,25 @@ export default function CreateQuestions() {
         event.preventDefault();
         navigate('/quiz-detail', { state: { quizData } });
     };
+
+    // Check if all required fields are filled to enable the continue button
+    const isFormValid = () => {
+        return rounds.every((round: any) =>
+            round.questions.every((question: any) =>
+                question.statement.trim() !== '' &&
+                (round.questionType === 'rapid-fire'
+                    ? question.correctAnswer.trim() !== ''
+                    : round.questionType === 'audio-visual'
+                        ? question.media.data.trim() !== '' &&
+                            question.media.type.trim() !== '' &&
+                            question.correctAnswer.trim() !== ''
+                        : question.correctAnswer.trim() !== '' &&
+                            question.options.every((option: string) => option.trim() !== '')
+                )
+            )
+        );
+    };
+
 
     return (
         <Container size="md" py="xl">
@@ -154,6 +183,7 @@ export default function CreateQuestions() {
                                         {/* Normal Round Fields */}
                                         {round.questionType === 'normal' && (
                                             <>
+                                                {/* Options */}
                                                 <Grid>
                                                     {question.options.map((option: string, optionIndex: number) => (
                                                         <Grid.Col span={6} key={optionIndex}>
@@ -174,6 +204,7 @@ export default function CreateQuestions() {
                                                 </Grid>
                                                 <Box style={{ maxWidth: '300px' }}>
                                                     <Select
+                                                        required
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
                                                         value={question.correctAnswer}
@@ -190,8 +221,8 @@ export default function CreateQuestions() {
                                                         data={question.options
                                                             .filter((option: string, index: number, array: string[]) => {
                                                                 // Only include non-empty options and remove duplicates
-                                                                return option.trim() !== '' && 
-                                                                       array.indexOf(option) === index; // Keep only first occurrence of duplicate
+                                                                return option.trim() !== '' &&
+                                                                    array.indexOf(option) === index; // Keep only first occurrence of duplicate
                                                             })
                                                             .map((option: string) => ({
                                                                 value: option, // Pass the actual option text as value
@@ -219,13 +250,21 @@ export default function CreateQuestions() {
                                                     }
                                                     data={[
                                                         { value: 'image', label: 'Image' },
-                                                        { value: 'audio', label: 'Audio' }
+                                                        { value: 'audio', label: 'Audio' },
+                                                        { value: 'video', label: 'Video' }
                                                     ]}
                                                 />
                                                 <FileInput
                                                     label="Select Media File"
                                                     placeholder="Click to upload media file"
-                                                    accept={question.media.type === 'image' ? 'image/*' : 'audio/*'}
+                                                    description={question.media.type === 'video' ? 'Max file size: 50MB' : ''}
+                                                    accept={
+                                                        question.media.type === 'image'
+                                                            ? 'image/*'
+                                                            : question.media.type === 'audio'
+                                                                ? 'audio/*'
+                                                                : 'video/*'
+                                                    }
                                                     value={question.media.data}
                                                     onChange={(file) =>
                                                         handleMediaChange(roundIndex, questionIndex, 'data', file)
@@ -251,6 +290,16 @@ export default function CreateQuestions() {
                                                     </audio>
                                                 )}
 
+                                                {question.media.type === 'video' && question.media.data && (
+                                                    <Box w={200}>
+                                                    <video controls>
+                                                        {/* <source src={URL.createObjectURL(question.media.url)} type="video/mp4" /> */}
+                                                        <source src={question.media.data} type="video/mp4" />
+                                                        Your browser does not support the video element.
+                                                    </video>
+                                                    </Box>
+                                                )}
+                                                {/* Options */}
                                                 <Grid>
                                                     {question.options.map((option: string, optionIndex: number) => (
                                                         <Grid.Col span={6} key={optionIndex}>
@@ -269,8 +318,10 @@ export default function CreateQuestions() {
                                                         </Grid.Col>
                                                     ))}
                                                 </Grid>
+                                                {/* Correct Option */}
                                                 <Box style={{ maxWidth: '300px' }}>
                                                     <Select
+                                                        required
                                                         label="Correct Option"
                                                         placeholder="Select correct option"
                                                         value={question.correctAnswer}
@@ -287,8 +338,8 @@ export default function CreateQuestions() {
                                                         data={question.options
                                                             .filter((option: string, index: number, array: string[]) => {
                                                                 // Only include non-empty options and remove duplicates
-                                                                return option.trim() !== '' && 
-                                                                       array.indexOf(option) === index; // Keep only first occurrence of duplicate
+                                                                return option.trim() !== '' &&
+                                                                    array.indexOf(option) === index; // Keep only first occurrence of duplicate
                                                             })
                                                             .map((option: string) => ({
                                                                 value: option, // Pass the actual option text as value
@@ -343,13 +394,14 @@ export default function CreateQuestions() {
                         // leftSection={<Play size={24} />}
                         style={{ fontWeight: 'bold' }}
                         fullWidth
-                    // disabled={rounds.some((round: any) => round.questions.some((question: any) => !question.statement || question.options.some((option: any) => !option)))}
+                        // disabled={rounds.some((round: any) => round.questions.some((question: any) => !question.statement || question.options.some((option: any) => !option)))}
+                        disabled={!isFormValid()}
                     >
                         Continue
                     </Button>
                 </Center>
                 <Space h="sm" />
-                {rounds && <QuizPreviewModal quizData={quizData} />}
+                {rounds && <QuizPreviewModal quizData={quizData} isFormValid={isFormValid()} />}
             </form>
         </Container>
     );
