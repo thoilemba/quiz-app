@@ -8,6 +8,7 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
 };
 
 
+// Electron API
 declare global {
   interface Window {
     electronAPI: {

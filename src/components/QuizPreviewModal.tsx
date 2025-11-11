@@ -22,155 +22,13 @@ import { getQuestionTypeIcon } from './QuestionTypeIcon';
 import { getQuestionTypeColor } from './QuestionTypeColor';
 import QuizInfo from './QuizInfo';
 
-// Define question types
-// interface BaseQuestion {
-//   statement: string;
-//   type: 'normal' | 'audio-visual' | 'rapid-fire';
-// }
-
-// interface MultipleChoiceQuestion extends BaseQuestion {
-//   options: string[];
-//   correctOption: string;
-//   media?: {
-//     type: string;
-//     url: string;
-//   };
-//   correctAnswer?: never;
-// }
-
-// interface RapidFireQuestion extends BaseQuestion {
-//   correctAnswer: string;
-//   options?: never;
-//   correctOption?: never;
-//   media?: never;
-// }
-
-// type Question = MultipleChoiceQuestion | RapidFireQuestion;
-
-// interface Round {
-//   roundNumber: number;
-//   numberOfQuestions: number;
-//   questionType: 'normal' | 'audio-visual' | 'rapid-fire';
-//   questions: Question[];
-// }
-
-
 
 const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormValid: boolean }) => {
     const [opened, setOpened] = useState(false);
 
-    // Sample data - replace with your actual rounds data
-    //   const rounds = [
-    //     {
-    //       "roundNumber": 1,
-    //       "numberOfQuestions": 2,
-    //       "questionType": "normal",
-    //       "questions": [
-    //         {
-    //           "statement": "What is the capital of France?",
-    //           "options": [
-    //             "London",
-    //             "Berlin",
-    //             "Paris",
-    //             "Madrid"
-    //           ],
-    //           "correctOption": "Option C"
-    //         },
-    //         {
-    //           "statement": "Which planet is known as the Red Planet?",
-    //           "options": [
-    //             "Mars",
-    //             "Venus",
-    //             "Jupiter",
-    //             "Saturn"
-    //           ],
-    //           "correctOption": "Option A"
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       "roundNumber": 2,
-    //       "numberOfQuestions": 1,
-    //       "questionType": "audio-visual",
-    //       "questions": [
-    //         {
-    //           "statement": "What sound does this animal make?",
-    //           "media": {
-    //             "type": "audio",
-    //             "url": "https://example.com/dog-bark.mp3"
-    //           },
-    //           "options": [
-    //             "Bark",
-    //             "Meow",
-    //             "Moo",
-    //             "Chirp"
-    //           ],
-    //           "correctOption": "Option A"
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       "roundNumber": 3,
-    //       "numberOfQuestions": 1,
-    //       "questionType": "rapid-fire",
-    //       "questions": [
-    //         {
-    //           "statement": "What is 2 + 2?",
-    //           "correctAnswer": "4"
-    //         }
-    //       ]
-    //     }
-    //   ];
-
-    // const teamsData = [
-    //     {
-    //         id: 1,
-    //         name: "Manipur Royal Knights",
-    //         members: ["Moirangthem Mangalsana Meitei", "Thongam Nirmala Devi"]
-    //     },
-    //     {
-    //         id: 2,
-    //         name: "Team 2",
-    //         members: ["Yumnam Roshnibala Devi", "Thangjam Puneshori Chanu"]
-    //     },
-    //     {
-    //         id: 3,
-    //         name: "Team 3",
-    //         members: ["Member 3", "Member 3"]
-    //     },
-    //     {
-    //         id: 4,
-    //         name: "Team 4",
-    //         members: ["Member 4", "Member 4"]
-    //     }
-    // ];
-
-    // console.log('Quiz Data:', quizDetails);
-    // console.log('Rounds Data:', rounds);
-
-    // const saveAllQuestions = () => {
-    //     console.log('All Questions Data:', rounds);
-    //     // Here you can send the data to your backend or local storage
-    //     setOpened(false);
-    //     // You can use Mantine notifications here
-    //     alert('Quiz saved successfully!');
-    // };
-
     const saveAllQuestions = async () => {
-        // const quizData = {
-        //     quizName: quizDetails.quizName,
-        //     numberOfTeams: quizDetails.numberOfTeams,
-        //     membersPerTeam: quizDetails.numberOfMembers,
-        //     numberOfRounds: quizDetails.numberOfRounds,
-        //     quizMaster: quizDetails.quizMaster,
-        //     teams: quizDetails.teams,
-        //     roundsData: rounds, // assuming `rounds` is your current state
-        // };
-
         console.log("quizData", quizData);
-
         const result = await window.electronAPI.saveQuizJSON(quizData);
-
         console.log("result", result);
 
         if (result.success) {
@@ -181,9 +39,6 @@ const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormVali
             alert('Failed to save quiz data: ' + (result.error || result.message || 'Unknown error'));
         }
     };
-
-
-    // const totalQuestions = rounds.reduce((total: any, round: any) => total + round.numberOfQuestions, 0);
 
     return (
         <Box>
@@ -229,10 +84,6 @@ const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormVali
                     quizMaster={quizData.quizMaster}
                     schoolLogo={quizData.schoolLogo}
                 />
-                {/* <Stack justify="center" gap="xs">
-                    <Title order={3} ta="center" c="blue">Quiz Master</Title>
-                    <Text ta="center">Dr. Moirangthem Mangalsana Meitei</Text>
-                </Stack> */}
                 <Stack gap="lg" p="md">
                     <Title order={3} ta="center" c="blue">Teams</Title>
                     <Grid gutter="xl">
@@ -423,7 +274,6 @@ const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormVali
 
                 {/* Modal Footer */}
                 <Group justify="center" pb="md">
-                    {/* <Group> */}
                     <Button
                         variant="subtle"
                         onClick={() => setOpened(false)}
@@ -437,7 +287,6 @@ const QuizPreviewModal = ({ quizData, isFormValid }: { quizData: any, isFormVali
                     >
                         Save Quiz
                     </Button>
-                    {/* </Group> */}
                 </Group>
             </Modal>
         </Box>

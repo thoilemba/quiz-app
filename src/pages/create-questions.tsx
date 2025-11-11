@@ -213,12 +213,6 @@ export default function CreateQuestions() {
                                                         onChange={(value) =>
                                                             handleQuestionChange(roundIndex, questionIndex, 'correctAnswer', value as string)
                                                         }
-                                                        // data={[
-                                                        //     { value: 'Option A', label: 'Option A' },
-                                                        //     { value: 'Option B', label: 'Option B' },
-                                                        //     { value: 'Option C', label: 'Option C' },
-                                                        //     { value: 'Option D', label: 'Option D' }
-                                                        // ]}
                                                         data={question.options
                                                             .filter((option: string, index: number, array: string[]) => {
                                                                 // Only include non-empty options and remove duplicates
@@ -395,7 +389,6 @@ export default function CreateQuestions() {
                         // leftSection={<Play size={24} />}
                         style={{ fontWeight: 'bold' }}
                         fullWidth
-                        // disabled={rounds.some((round: any) => round.questions.some((question: any) => !question.statement || question.options.some((option: any) => !option)))}
                         disabled={!isFormValid()}
                     >
                         Proceed to Start Quiz

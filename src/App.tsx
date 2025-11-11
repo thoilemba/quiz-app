@@ -2,15 +2,15 @@ import { Route, Routes } from 'react-router-dom'
 import { MantineProvider, createTheme } from '@mantine/core'
 import '@mantine/core/styles.css';
 
-import Quiz from './components/Quiz'
-import Details from './pages/details'
+import QuizStart from './pages/quiz-start'
+import Details from './pages/quiz-detail'
 import Results from './pages/results'
 import CreateQuiz from './pages/create-quiz'
 import CreateTeams from './pages/create-teams'
 import CreateRounds from './pages/create-rounds'
 import CreateQuestions from './pages/create-questions';
 import HomePage from './pages/home';
-// import QuizStart from './pages/quiz-start';
+
 
 function App() {
 
@@ -27,8 +27,7 @@ function App() {
         <Route path="/create-rounds" element={<CreateRounds />} />
         <Route path="/create-questions" element={<CreateQuestions />} />
         <Route path="/quiz-detail" element={<Details />} />
-        <Route path="/quiz-start" element={<Quiz />} />
-        {/* <Route path="/quiz" element={<QuizStart />} /> */}
+        <Route path="/quiz-start" element={<QuizStart />} />
         <Route path="/results" element={<Results />} />
       </Routes>
     </MantineProvider>

@@ -3,6 +3,8 @@ import { Play } from "lucide-react";
 import { getQuestionTypeColor } from "./QuestionTypeColor";
 import { getQuestionTypeIcon } from "./QuestionTypeIcon";
 
+
+// Used in quiz-start to display each rounds details
 export default function RoundDetail({ round, onContinue }: { round: any, onContinue: () => void }) {
     return (
         <Stack my="xl">

@@ -1,4 +1,4 @@
-// Quiz configuration
+// // Quiz configuration use in detail page (commented section)
 // export const quizData = {
 //   eventName: 'Annual Inter-School Quiz Competition',
 //   schoolName: 'St. Mary\'s High School',
@@ -45,6 +45,7 @@
 //   ]
 // };
 
+// // Used in detail page (commented section)
 // export const roundsData = [
 //   {
 //     id: 1,
