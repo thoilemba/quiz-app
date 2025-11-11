@@ -20,7 +20,7 @@ import { Upload, X } from 'lucide-react';
 
 export default function CreateQuiz() {
     const navigate = useNavigate();
-    const [quizName, setQuizName] = useState('Testing');
+    const [quizName, setQuizName] = useState('');
     const [numberOfTeams, setNumberOfTeams] = useState(4);
     const [numberOfMembers, setNumberOfMembers] = useState(4);
     const [numberOfRounds, setNumberOfRounds] = useState(3);
@@ -56,15 +56,15 @@ export default function CreateQuiz() {
 
     const handleSaveAndContinue = (event: React.FormEvent) => {
         event.preventDefault(); // Prevent page reload
-        console.log('Quiz Data:', {
-            quizName,
-            numberOfTeams,
-            numberOfMembers,
-            numberOfRounds,
-            schoolName,
-            address,
-            quizMaster
-        });
+        // console.log('Quiz Data:', {
+        //     quizName,
+        //     numberOfTeams,
+        //     numberOfMembers,
+        //     numberOfRounds,
+        //     schoolName,
+        //     address,
+        //     quizMaster
+        // });
         // Add your save logic here
         navigate('/create-teams', {
             state: {

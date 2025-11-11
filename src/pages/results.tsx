@@ -174,7 +174,7 @@ const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { quizData, scores } = location.state || {};
-  console.log("quizData", quizData);
+  // console.log("quizData", quizData);
 
   const getMedalEmoji = (index: number) => {
     if (index === 0) {
@@ -202,8 +202,6 @@ const Results = () => {
     }))
     .sort((a, b) => b.score - a.score);
 
-  console.log(sortedTeams);
-
   return (
     <Box
       style={{
@@ -214,11 +212,7 @@ const Results = () => {
     >
       <Flex justify="space-between" p="md">
         <Button
-          // onClick={() => navigate('/', { replace: true })} variant="outline" c="white"
-          onClick={() => {
-            window.location.hash = '#/';
-            window.history.replaceState(null, '', '#/');
-          }}
+          onClick={() => navigate('/', { replace: true })} variant="outline" c="white"
         >
           Back to Home
         </Button>
@@ -239,7 +233,6 @@ const Results = () => {
             <Grid.Col
               key={team.id}
               span={{ base: 12, sm: 6, md: 3 }}
-            // order={idx === 0 ? 1 : undefined} 
             >
               <Paper
                 radius="md"

@@ -57,9 +57,6 @@ export function generateQuizResultPdf(data: QuizResult, sortedTeams: any) {
 
   y += 25;
 
-  // --- Sort Teams by Score (Descending) ---
-//   const sortedTeams = [...data.teams].sort((a, b) => b.score - a.score);
-
   // --- Table Data ---
   const tableData = sortedTeams.map((team: any, index: any) => [
     index + 1, // Rank

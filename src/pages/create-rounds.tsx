@@ -493,17 +493,17 @@ export default function CreateRounds() {
 
     const handleCreateQuiz = () => {
         // Here you would typically navigate to the next step or save the configuration
-        console.log("Quiz Configuration:", {
-            quizName,
-            schoolName,
-            address,
-            numberOfTeams,
-            numberOfMembers,
-            numberOfRounds,
-            teams,
-            quizMaster,
-            roundsConfig,
-        });
+        // console.log("Quiz Configuration:", {
+        //     quizName,
+        //     schoolName,
+        //     address,
+        //     numberOfTeams,
+        //     numberOfMembers,
+        //     numberOfRounds,
+        //     teams,
+        //     quizMaster,
+        //     roundsConfig,
+        // });
         navigate('/create-questions', {
             state: {
                 quizName,

@@ -1,4 +1,4 @@
-import { Container, Title, Paper, Group, Badge, Box, Grid, Select, TextInput, Stack, Button, Space, FileInput, Image, Center } from "@mantine/core";
+import { Container, Title, Paper, Group, Badge, Box, Grid, Select, TextInput, Stack, Button, Space, FileInput, Image, Center, Modal, Text } from "@mantine/core";
 import BackButton from "../components/BackButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -12,6 +12,7 @@ export default function CreateQuestions() {
     const navigate = useNavigate();
     const location = useLocation();
     const { quizName, numberOfTeams, numberOfMembers, numberOfRounds, teams, roundsConfig, quizMaster, schoolName, address, logo } = location.state || {};
+    const [confirmModalOpened, setConfirmModalOpened] = useState(false);
 
     const [rounds, setRounds] = useState(() =>
         roundsConfig.map((round: any) => ({
@@ -101,12 +102,12 @@ export default function CreateQuestions() {
         }
 
         const file = value as File;
-        
+
         // Check file size (10MB limit for videos)
         const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 10MB in bytes
         const round = rounds[roundIndex];
         const isVideo = round.questions[questionIndex].media.type === 'video';
-        
+
         if (isVideo && file.size > MAX_VIDEO_SIZE) {
             alert('Video file size must be less than 50MB');
             return;
@@ -133,10 +134,10 @@ export default function CreateQuestions() {
                     ? question.correctAnswer.trim() !== ''
                     : round.questionType === 'audio-visual'
                         ? question.media.data.trim() !== '' &&
-                            question.media.type.trim() !== '' &&
-                            question.correctAnswer.trim() !== ''
+                        question.media.type.trim() !== '' &&
+                        question.correctAnswer.trim() !== ''
                         : question.correctAnswer.trim() !== '' &&
-                            question.options.every((option: string) => option.trim() !== '')
+                        question.options.every((option: string) => option.trim() !== '')
                 )
             )
         );
@@ -292,11 +293,11 @@ export default function CreateQuestions() {
 
                                                 {question.media.type === 'video' && question.media.data && (
                                                     <Box w={200}>
-                                                    <video controls>
-                                                        {/* <source src={URL.createObjectURL(question.media.url)} type="video/mp4" /> */}
-                                                        <source src={question.media.data} type="video/mp4" />
-                                                        Your browser does not support the video element.
-                                                    </video>
+                                                        <video controls>
+                                                            {/* <source src={URL.createObjectURL(question.media.url)} type="video/mp4" /> */}
+                                                            <source src={question.media.data} type="video/mp4" />
+                                                            Your browser does not support the video element.
+                                                        </video>
                                                     </Box>
                                                 )}
                                                 {/* Options */}
@@ -373,23 +374,23 @@ export default function CreateQuestions() {
                     </Paper>
                 ))}
                 {/* <Button
-                onClick={() => console.log('All Questions Data:', quizDetails, rounds)}
-                // variant="outline"
-                color="blue"
-                size="md"
-                mt="md"
-                fullWidth
-            >
-                Log Questions (for testing purpose)
-            </Button> */}
-                {/* Start Button */}
+                    onClick={() => console.log('All Questions Data:', quizData)}
+                    // variant="outline"
+                    color="blue"
+                    size="md"
+                    mt="md"
+                    fullWidth
+                >
+                    Log Questions (for testing purpose)
+                </Button> */}
+
                 <Center mt="lg">
                     <Button
-                        // onClick={handleContinue}
-                        type="submit"
+                        onClick={() => setConfirmModalOpened(true)}
+                        // type="submit" // use this if you want to submit the form
                         variant="gradient"
                         gradient={{ from: 'green', to: 'blue' }}
-                        size="xl"
+                        size="lg"
                         color="blue"
                         // leftSection={<Play size={24} />}
                         style={{ fontWeight: 'bold' }}
@@ -397,11 +398,37 @@ export default function CreateQuestions() {
                         // disabled={rounds.some((round: any) => round.questions.some((question: any) => !question.statement || question.options.some((option: any) => !option)))}
                         disabled={!isFormValid()}
                     >
-                        Continue
+                        Proceed to Start Quiz
                     </Button>
                 </Center>
                 <Space h="sm" />
                 {rounds && <QuizPreviewModal quizData={quizData} isFormValid={isFormValid()} />}
+                <Modal
+                    opened={confirmModalOpened}
+                    onClose={() => setConfirmModalOpened(false)}
+                    title="Confirm Quiz Start"
+                    centered
+                    styles={{
+                        title: {
+                            width: '100%',
+                            textAlign: 'center',
+                            fontWeight: 'bold'
+                        }
+                    }}
+                >
+                    <Text mb="lg">
+                        Are you sure you want to start the quiz? Quiz data are not saved!
+                    </Text>
+
+                    <Group justify="center" mt="md">
+                        <Button variant="outline" color="red" onClick={() => setConfirmModalOpened(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleContinue}>
+                            Start Quiz
+                        </Button>
+                    </Group>
+                </Modal>
             </form>
         </Container>
     );

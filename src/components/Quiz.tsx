@@ -185,7 +185,7 @@ function Quiz() {
   };
 
   const revealAnswer = () => {
-    console.log(selectedAnswer, currentQuestionData.correctAnswer);
+    // console.log(selectedAnswer, currentQuestionData.correctAnswer);
     setShowAnswer(true);
     setIsTimerRunning(false);
 

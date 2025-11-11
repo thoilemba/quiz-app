@@ -61,7 +61,7 @@ const TeamsDetailForm = () => {
     };
 
     const handleContinue = () => {
-        console.log('Teams data:', teams);
+        // console.log('Teams data:', teams);
         navigate('/create-rounds', {
             state: {
                 quizName,

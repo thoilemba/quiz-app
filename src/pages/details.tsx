@@ -336,7 +336,7 @@ const Details = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { quizData } = location.state || {};
-  console.log(quizData);
+  // console.log(quizData);
 
   return (
     <div style={{
